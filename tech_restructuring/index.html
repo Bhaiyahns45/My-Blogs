@@ -8,11 +8,17 @@
         body {
             font-family: Georgia, serif;
             line-height: 1.6;
-            max-width: 800px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 15px;
             background-color: #fafafa;
             color: #333;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
         }
         
         .header {
@@ -131,6 +137,57 @@
         .sources a:hover {
             text-decoration: underline;
         }
+        
+        .automation-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .automation-table th {
+            background: #34495e;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .automation-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        
+        .automation-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .automation-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        .risk-high {
+            background-color: #ffebee !important;
+            border-left: 4px solid #e74c3c;
+        }
+        
+        .risk-low {
+            background-color: #e8f5e8 !important;
+            border-left: 4px solid #27ae60;
+        }
+        
+        .icon {
+            margin-right: 8px;
+            font-size: 1.2em;
+        }
+        
+        .section-icon {
+            margin-right: 10px;
+            font-size: 1.3em;
+        }
     </style>
 </head>
 <body>
@@ -138,12 +195,12 @@
         <div class="hero-image">
             <img src="https://images.unsplash.com/photo-1485827404703-89b55fcc595e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80" alt="AI and Technology workplace transformation" style="width: 100%; height: 300px; object-fit: cover; border-radius: 8px; margin-bottom: 20px;">
         </div>
-        <h1>The Great Tech Reshuffling: AI's Impact on Jobs in 2025</h1>
+        <h1>The Great Tech Reshuffling: AI's Impact on Jobs</h1>
         <div class="meta">A personal take on what's really happening in the industry</div>
     </div>
 
     <div class="section">
-        <h2>The Numbers Don't Lie</h2>
+        <h2><span class="section-icon">📊</span>The Numbers Don't Lie</h2>
         <p>We're witnessing something unprecedented in the tech world. Major companies are cutting deep into their workforce, and it's not just about economic downturns anymore. Microsoft has eliminated around 9,000 roles, Intel is planning cuts of up to 24,000 positions (that's nearly 20% of their staff), and TCS has trimmed about 12,000 roles.</p>
         
         <div class="stats">
@@ -154,7 +211,7 @@
     </div>
 
     <div class="section">
-        <h2>Why This Is Really Happening</h2>
+        <h2><span class="section-icon">🔍</span>Why This Is Really Happening</h2>
         <p>The traditional explanation of "economic pressures" only tells part of the story. What we're seeing is a massive capital reallocation. Companies are pulling money from legacy roles and pouring it into AI infrastructure and automation. Microsoft alone is investing over $80 billion in AI infrastructure this year.</p>
         
         <p>The shift is clear: businesses are now measuring success based on engineering output and AI adoption rather than headcount. It's not about having more people anymore - it's about having the right capabilities.</p>
@@ -163,7 +220,7 @@
     </div>
 
     <div class="section">
-        <h2>What You Can Actually Do About It</h2>
+        <h2><span class="section-icon">🚀</span>What You Can Actually Do About It</h2>
         <div class="action-list">
             <h3>Practical Steps Forward</h3>
             <div class="action-item"><strong>Focus on AI-adjacent fields:</strong> Cybersecurity, DevOps, embedded systems, and prompt engineering are growing despite automation. These areas still need human expertise and creativity.</div>
@@ -175,17 +232,94 @@
     </div>
 
     <div class="section">
-        <h2>What's Getting Automated by 2030</h2>
-        <p>Let's be realistic about what's coming. Front-end development, UI/UX design templates, basic content writing, data entry, and testing support are already being handled more efficiently by AI. Large Language Models are getting scary good at generating design structures and even writing code.</p>
+        <h2><span class="section-icon">🤖</span>What's Getting Automated by 2030</h2>
+        <p>Let's be realistic about what's coming. Here's a breakdown of job roles and their automation risk:</p>
         
-        <p>Administrative support, transcription, customer service, and junior analyst roles are being absorbed by AI-powered assistants faster than most people realize.</p>
+        <table class="automation-table">
+            <thead>
+                <tr>
+                    <th><span class="icon">💼</span>Job Category</th>
+                    <th><span class="icon">⚡</span>Automation Risk</th>
+                    <th><span class="icon">📅</span>Timeline</th>
+                    <th><span class="icon">💡</span>Why</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="risk-high">
+                    <td><span class="icon">🎨</span>Front-end Development</td>
+                    <td>High</td>
+                    <td>2025-2027</td>
+                    <td>AI can generate code structures and layouts efficiently</td>
+                </tr>
+                <tr class="risk-high">
+                    <td><span class="icon">✏️</span>UI/UX Design Templates</td>
+                    <td>High</td>
+                    <td>2025-2028</td>
+                    <td>Pattern-based design easily replicated by AI</td>
+                </tr>
+                <tr class="risk-high">
+                    <td><span class="icon">📝</span>Basic Content Writing</td>
+                    <td>High</td>
+                    <td>Already happening</td>
+                    <td>LLMs excel at generating standard content</td>
+                </tr>
+                <tr class="risk-high">
+                    <td><span class="icon">📊</span>Data Entry</td>
+                    <td>Very High</td>
+                    <td>2025-2026</td>
+                    <td>Repetitive, rule-based tasks</td>
+                </tr>
+                <tr class="risk-high">
+                    <td><span class="icon">🧪</span>Testing Support</td>
+                    <td>High</td>
+                    <td>2026-2028</td>
+                    <td>Automated testing tools becoming sophisticated</td>
+                </tr>
+                <tr class="risk-high">
+                    <td><span class="icon">📞</span>Customer Service</td>
+                    <td>High</td>
+                    <td>2025-2027</td>
+                    <td>Chatbots handling complex queries effectively</td>
+                </tr>
+                <tr class="risk-low">
+                    <td><span class="icon">⚙️</span>Back-end Architecture</td>
+                    <td>Low</td>
+                    <td>2030+</td>
+                    <td>Complex system design requires human expertise</td>
+                </tr>
+                <tr class="risk-low">
+                    <td><span class="icon">🔒</span>Cybersecurity Strategy</td>
+                    <td>Low</td>
+                    <td>2030+</td>
+                    <td>Human judgment needed for threat assessment</td>
+                </tr>
+                <tr class="risk-low">
+                    <td><span class="icon">🔧</span>DevOps Engineering</td>
+                    <td>Low</td>
+                    <td>2030+</td>
+                    <td>Real-time problem solving and creativity required</td>
+                </tr>
+                <tr class="risk-low">
+                    <td><span class="icon">🌐</span>Database Optimization</td>
+                    <td>Low</td>
+                    <td>2030+</td>
+                    <td>Context-specific optimization needs human insight</td>
+                </tr>
+                <tr class="risk-low">
+                    <td><span class="icon">⚛️</span>Quantum Computing</td>
+                    <td>Very Low</td>
+                    <td>Beyond 2030</td>
+                    <td>Cutting-edge field requiring deep human expertise</td>
+                </tr>
+            </tbody>
+        </table>
         
-        <p>But there's hope in complexity. Back-end development, especially system architecture, database optimization, and API integrations, remains challenging for AI. Strategic roles in cybersecurity, DevOps, and quantum computing still need human problem-solving and creativity - areas where AI still struggles.</p>
+        <p>The pattern is clear: roles involving predictable, repetitive tasks are at high risk, while those requiring creativity, complex problem-solving, and human judgment remain safer.</p>
     </div>
 
     <div class="section">
         <div class="perspective">
-            <h2>My Take on All This</h2>
+            <h2><span class="section-icon">💭</span>My Take on All This</h2>
             <p>What used to work in enterprise IT - hiring large teams for visibility, process-heavy delivery models, and paper-based milestones - simply doesn't cut it anymore. Clients and employers now expect practical innovation and AI fluency, not bureaucratic checkboxes.</p>
             
             <p>The firing patterns we're seeing aren't really about underperformance. They're about long-term dormancy. Employees in passive or support-heavy roles who haven't evolved into engineering or AI-integrated functions are being let go. In 2025, the measurement is hands-on technical output, not how long you've been around.</p>
@@ -194,15 +328,15 @@
 
     <div class="section">
         <div class="bottom-line">
-            <h2>The Bottom Line</h2>
+            <h2><span class="section-icon">🎯</span>The Bottom Line</h2>
             <p>To not just survive but actually thrive in this AI-driven era, organizations must prioritize innovation over headcount, and individuals need to evolve from passive contributors to visible, high-impact performers.</p>
             <p><strong>Value now lies in real impact, not just showing up.</strong></p>
         </div>
     </div>
 
     <div class="section">
-        <h2>What Do You Think?</h2>
-        <p>I've written this based on what I'm observing across major tech firms - not generated by AI, but from real industry patterns. The question I keep asking myself is: How are we collectively evolving our work cultures to match today's reality?</p>
+        <h2><span class="section-icon">💬</span>What Do You Think?</h2>
+        <p>I've written this based on what I'm observing across major tech firms. The question I keep asking myself is: How are we collectively evolving our work cultures to match today's reality?</p>
         
         <p>Are we preparing for the future, or are we still operating like it's 2019? I'd love to hear your thoughts on how you're adapting to these changes.</p>
         
