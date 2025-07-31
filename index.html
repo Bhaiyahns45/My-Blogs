@@ -1,69 +1,89 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Bhaiya's Tech Blog Hub</title>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f4f4f4;
       margin: 0;
       padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f9fafb;
+      color: #1f2937;
     }
 
     header {
-      background-color: #1f2937;
-      color: #fff;
+      background-color: #111827;
+      color: white;
       padding: 40px 20px;
       text-align: center;
     }
 
     header h1 {
+      font-size: 2.8em;
       margin: 0;
-      font-size: 2.5em;
     }
 
-    .container {
-      max-width: 800px;
+    header p {
+      font-size: 1.2em;
+      margin-top: 8px;
+      color: #9ca3af;
+    }
+
+    .section {
+      max-width: 900px;
       margin: 40px auto;
-      background-color: #fff;
-      padding: 30px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      border-radius: 12px;
+      padding: 0 20px;
     }
 
-    h2 {
-      color: #1f2937;
-      margin-bottom: 10px;
+    .section h2 {
+      border-bottom: 2px solid #e5e7eb;
+      padding-bottom: 8px;
+      margin-bottom: 20px;
+      font-size: 1.6em;
+      color: #111827;
     }
 
-    ul {
-      list-style-type: none;
+    .blog-list {
+      list-style: none;
       padding: 0;
     }
 
-    li {
-      margin: 20px 0;
-      font-size: 1.1em;
+    .blog-list li {
+      background-color: white;
+      margin-bottom: 15px;
+      border: 1px solid #e5e7eb;
+      padding: 15px 20px;
+      border-radius: 8px;
+      transition: box-shadow 0.3s;
     }
 
-    a {
+    .blog-list li:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .blog-list a {
       text-decoration: none;
       color: #2563eb;
-      transition: color 0.3s;
+      font-weight: 500;
+      font-size: 1.05em;
     }
 
-    a:hover {
-      color: #1d4ed8;
-      text-decoration: underline;
+    .blog-list span {
+      display: block;
+      color: #6b7280;
+      font-size: 0.9em;
+      margin-top: 5px;
     }
 
     footer {
       text-align: center;
-      padding: 20px;
-      color: #666;
+      padding: 30px 20px;
+      color: #6b7280;
       font-size: 0.9em;
+      background-color: #f3f4f6;
+      margin-top: 40px;
     }
   </style>
 </head>
@@ -71,18 +91,69 @@
 
   <header>
     <h1>Bhaiya's Tech Blog Hub 🚀</h1>
-    <p>Insights & Innovations in AI and Tech</p>
+    <p>Exploring AI, LLMs, and Cutting-Edge Technology</p>
   </header>
 
-  <div class="container">
-    <h2>📚 Blog Posts</h2>
-    <ul>
-      <li><a href="tech_restructuring/">🔧 Tech Restructuring — How AI is Rebuilding Industries</a></li>
+  <div class="section">
+    <h2>📁 Self-Hosted Blogs</h2>
+    <ul class="blog-list">
+      <li>
+        <a href="tech_restructuring/">🔧 Tech Restructuring — How AI is Rebuilding Industries</a>
+        <span>Hosted on GitHub Pages</span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>✍️ Medium Blogs</h2>
+    <ul class="blog-list">
+      <li>
+        <a href="https://medium.com/@bhaiyasingh/how-i-passed-the-databricks-generative-ai-engineer-associate-exam-c7d8e3468368" target="_blank">
+          🧠 How I Passed the Databricks Generative AI Engineer Associate Exam
+        </a>
+        <span>Jun 14, 2025 · 4 min read</span>
+      </li>
+      <li>
+        <a href="https://medium.com/@bhaiyasingh/integrating-sharepoint-data-with-your-rag-chatbot-two-approaches-for-secure-access-e8ccabfbc8fe" target="_blank">
+          🔐 Integrating SharePoint Data with Your RAG Chatbot: Two Approaches for Secure Access
+        </a>
+        <span>Mar 6, 2025 · 6 min read</span>
+      </li>
+      <li>
+        <a href="https://medium.com/@bhaiyasingh/integrating-sharepoint-data-with-your-rag-chatbot-two-approaches-for-secure-access-e8ccabfbc8fe" target="_blank">
+          🐜 How Ants Can Solve Complex Business Problems: Ant Colony Optimization
+        </a>
+        <span>Oct 5, 2024 · 4 min read</span>
+      </li>
+      <li>
+        <a href="https://medium.com/@bhaiyasingh/understanding-prompt-injection-a-real-world-guide-to-a-growing-threat-20031a23ba35" target="_blank">
+          🚨 Understanding Prompt Injection: A Real-World Guide to a Growing Threat
+        </a>
+        <span>Aug 31, 2024 · 4 min read</span>
+      </li>
+      <li>
+        <a href="https://medium.com/@bhaiyasingh/introducing-gpt-40-mini-the-future-of-cost-efficient-ai-a-detailed-comparison-with-gpt-4o-3e41e6b4269e" target="_blank">
+          💡 Introducing GPT-40 Mini: Cost-Efficient AI vs GPT-4o
+        </a>
+        <span>Aug 4, 2024 · 17 min read</span>
+      </li>
+      <li>
+        <a href="https://medium.com/@bhaiyasingh/customizing-large-language-models-llms-with-your-data-exploring-the-best-methods-b4a13e939b77" target="_blank">
+          🛠️ Customizing LLMs with Your Data: Best Methods
+        </a>
+        <span>Jul 18, 2024 · 5 min read</span>
+      </li>
+      <li>
+        <a href="https://medium.com/@bhaiyasingh/overcoming-the-top-5-challenges-in-deploying-llm-agents-into-production-937b27ebd1c1" target="_blank">
+          🚧 Top 5 Challenges in Deploying LLM Agents to Production
+        </a>
+        <span>Jun 18, 2024 · 3 min read</span>
+      </li>
     </ul>
   </div>
 
   <footer>
-    © 2025 Bhaiya HN Singh. All rights reserved.
+    © 2025 Bhaiya HN Singh — All Rights Reserved
   </footer>
 
 </body>
