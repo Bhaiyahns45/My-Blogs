@@ -1,0 +1,1658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Week 4: GenAI Agents & Multimodal RAG</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #47D7AC 0%, #47D7AC 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .presentation-container {
+            width: 100%;
+            max-width: 1200px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .slide {
+            display: none;
+            padding: 60px;
+            min-height: 600px;
+            animation: fadeIn 0.5s;
+            position: relative;
+        }
+
+        .slide-logo {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            max-width: 120px;
+            max-height: 80px;
+            object-fit: contain;
+            z-index: 10;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .slide-header i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .slide-header h1 {
+            font-size: 36px;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .slide-header p {
+            font-size: 18px;
+            color: #718096;
+        }
+
+        .grid-2, .grid-3, .grid-4 {
+            display: grid;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .grid-2 { grid-template-columns: repeat(2, 1fr); }
+        .grid-3 { grid-template-columns: repeat(3, 1fr); }
+        .grid-4 { grid-template-columns: repeat(2, 1fr); }
+
+        .card {
+            padding: 25px;
+            border-radius: 15px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .card i {
+            font-size: 32px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .card h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #2d3748;
+        }
+
+        .card p, .card ul {
+            color: #4a5568;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .card ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .card ul li {
+            margin: 8px 0;
+        }
+
+        .bg-blue { background: #ebf8ff; }
+        .bg-purple { background: #faf5ff; }
+        .bg-green { background: #f0fff4; }
+        .bg-orange { background: #fffaf0; }
+        .bg-yellow { background: #fefcbf; }
+        .bg-red { background: #fff5f5; }
+        .bg-indigo { background: #e0e7ff; }
+        .bg-pink { background: #fce7f3; }
+
+        .text-blue { color: #3182ce; }
+        .text-purple { color: #805ad5; }
+        .text-green { color: #38a169; }
+        .text-orange { color: #dd6b20; }
+        .text-yellow { color: #d69e2e; }
+        .text-red { color: #e53e3e; }
+
+        .highlight-box {
+            background: #fef5e7;
+            border-left: 4px solid #f39c12;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .info-box {
+            background: #e8f4f8;
+            border-left: 4px solid #3498db;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: #f7fafc;
+            border-top: 1px solid #e2e8f0;
+            z-index: 1000;
+        }
+
+        .presentation-container {
+            margin-bottom: 80px;
+        }
+
+        .nav-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .nav-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .nav-btn:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slide-counter {
+            font-size: 16px;
+            color: #4a5568;
+            font-weight: 600;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: start;
+            padding: 15px;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+        }
+
+        .feature-item i {
+            font-size: 24px;
+            margin-right: 15px;
+            min-width: 30px;
+        }
+
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline-item {
+            display: flex;
+            margin: 20px 0;
+            align-items: center;
+        }
+
+        .timeline-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+
+        .timeline-content {
+            flex: 1;
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 10px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin: 5px;
+        }
+
+        .pros-cons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .pros, .cons {
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .pros {
+            background: #f0fff4;
+            border: 2px solid #38a169;
+        }
+
+        .cons {
+            background: #fff5f5;
+            border: 2px solid #e53e3e;
+        }
+
+        strong {
+            color: #2d3748;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <div class="slide-header">
+                <i class="fas fa-robot"></i>
+                <h1>Week 4: GenAI Agents & Multimodal RAG</h1>
+                <p>Building Intelligent Systems for Real-World Applications</p>
+            </div>
+            <div class="grid-4">
+                <div class="card bg-blue">
+                    <i class="fas fa-brain text-blue"></i>
+                    <h3>GenAI Agents Basics</h3>
+                    <p>Autonomous systems that can reason, plan, and take actions</p>
+                </div>
+                <div class="card bg-purple">
+                    <i class="fas fa-database text-purple"></i>
+                    <h3>Structured (SQL/CSV/Excel) Agents</h3>
+                    <p>Query and analyze structured data using natural language</p>
+                </div>
+                <div class="card bg-green">
+                    <i class="fas fa-image text-green"></i>
+                    <h3>Multimodal RAG</h3>
+                    <p>Process images, text, tables, and PDFs intelligently</p>
+                </div>
+                <div class="card bg-orange">
+                    <i class="fas fa-users text-orange"></i>
+                    <h3>Introduction to Multi-Agent Systems</h3>
+                    <p>Collaborative AI workflows for complex tasks</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: What are GenAI Agents -->
+        <div class="slide">
+            <div class="slide-header">
+                <i class="fas fa-robot"></i>
+                <h1>What are GenAI Agents?</h1>
+            </div>
+            <div class="info-box">
+                <h3 style="margin-bottom: 15px;"><i class="fas fa-lightbulb text-blue"></i> Definition</h3>
+                <p style="font-size: 18px; line-height: 1.8;">AI systems that can <strong class="text-blue">perceive their environment</strong>, <strong class="text-purple">reason about goals</strong>, <strong class="text-green">make decisions</strong>, and <strong class="text-orange">take actions</strong> autonomously to achieve objectives.</p>
+            </div>
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <i class="fas fa-cog text-blue"></i>
+                    <div>
+                        <strong>LLM Brain</strong>
+                        <p>Core reasoning and decision-making engine powered by large language models</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-tools text-purple"></i>
+                    <div>
+                        <strong>Tools & Actions</strong>
+                        <p>APIs, databases, search engines, calculators that agents can use</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-memory text-green"></i>
+                    <div>
+                        <strong>Memory</strong>
+                        <p>Short-term and long-term context retention for continuity</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-project-diagram text-orange"></i>
+                    <div>
+                        <strong>Planning</strong>
+                        <p>Break complex tasks into manageable steps and execute them</p>
+                    </div>
+                </div>
+            </div>
+            <div class="highlight-box">
+                <p><strong>💡 Agents:</strong> They don’t just <strong>talk</strong> — they <strong>act</strong>, executing tasks and making things happen.</p>
+            </div>
+        </div>
+        <!-- Slide 3: Why GenAI Agents Matter --> 
+<div class="slide"> 
+    <div class="slide-header"> 
+        <i class="fas fa-robot"></i> 
+        <h1>Why GenAI Agents Matter</h1> 
+    </div> 
+
+    <div class="grid-4"> 
+        <div class="card bg-blue"> 
+            <i class="fas fa-brain text-blue"></i> 
+            <h3>Reasoning & Planning</h3> 
+            <p>Break down complex tasks into steps, reason through problems, and adapt strategies based on outcomes</p> 
+        </div> 
+        <div class="card bg-purple"> 
+            <i class="fas fa-tools text-purple"></i> 
+            <h3>Tool Use & Actions</h3> 
+            <p>Autonomously call APIs, execute functions, and interact with external systems to complete goals</p> 
+        </div> 
+        <div class="card bg-green"> 
+            <i class="fas fa-memory text-green"></i> 
+            <h3>Memory & Context</h3> 
+            <p>Maintain conversation history and learn from interactions to provide personalized, context-aware responses</p> 
+        </div> 
+        <div class="card bg-orange"> 
+            <i class="fas fa-sync-alt text-orange"></i> 
+            <h3>Autonomous Workflows</h3> 
+            <p>Execute multi-step tasks independently with minimal human intervention, handling errors and edge cases</p> 
+        </div> 
+    </div> 
+
+    <div class="info-box"> 
+        <h3 style="margin-bottom: 15px;"><i class="fas fa-lightbulb"></i> What Makes Them Different</h3> 
+        <div class="grid-3"> 
+            <div> 
+                <p><strong class="text-blue">🎯 Goal-Oriented</strong></p> 
+                <p>Given objectives, not just prompts - agents work toward outcomes autonomously</p> 
+            </div> 
+            <div> 
+                <p><strong class="text-green">🔄 Iterative Learning</strong></p> 
+                <p>Learn from feedback, adjust approaches, and improve performance over time</p> 
+            </div> 
+            <div> 
+                <p><strong class="text-purple">🤝 Human-AI Collaboration</strong></p> 
+                <p>Work alongside humans, asking for clarification when needed and delegating appropriately</p> 
+            </div> 
+        </div> 
+    </div> 
+</div>
+
+        <!-- Slide 5: Tabular Data Agents - Tools -->
+<div class="slide">
+    <div class="slide-header">
+        <i class="fas fa-toolbox"></i>
+        <h1>Key Tools for Tabular Data Agents</h1>
+    </div>
+
+    <div class="grid-3">
+        <div class="card bg-blue">
+            <i class="fas fa-database text-blue"></i>
+            <h3>SQL Agent (LangChain)</h3>
+            <ul>
+                <li>✓ Works with any SQL database (PostgreSQL, MySQL, SQLite)</li>
+                <li>✓ Schema introspection - understands table structure</li>
+                <li>✓ Generates optimized SQL queries</li>
+                <li>✓ Handles complex JOINs and aggregations</li>
+                <li>✓ Natural language to SQL conversion</li>
+            </ul>
+            <div class="badge bg-green" style="background: #38a169; color: white; margin-top: 10px;">Best for: Production databases</div>
+        </div>
+
+        <div class="card bg-purple">
+            <i class="fas fa-file-csv text-purple"></i>
+            <h3>create_csv_agent (LangChain)</h3>
+            <ul>
+                <li>✓ Direct CSV file analysis with pandas</li>
+                <li>✓ Handles multiple CSV files simultaneously</li>
+                <li>✓ Statistical analysis and aggregations</li>
+                <li>✓ Data cleaning and transformation</li>
+                <li>✓ Quick exploratory data analysis</li>
+            </ul>
+            <div class="badge bg-orange" style="background: #dd6b20; color: white; margin-top: 10px;">Best for: Ad-hoc CSV analysis</div>
+        </div>
+
+        <div class="card bg-green">
+            <i class="fas fa-table text-green"></i>
+            <h3>create_pandas_dataframe_agent</h3>
+            <ul>
+                <li>✓ Works with any pandas DataFrame</li>
+                <li>✓ Excel files (convert to DataFrame first)</li>
+                <li>✓ Advanced data manipulation and filtering</li>
+                <li>✓ Statistical computations and insights</li>
+                <li>✓ Flexible for any tabular format</li>
+            </ul>
+            <div class="badge bg-blue" style="background: #3182ce; color: white; margin-top: 10px;">Best for: In-memory data analysis</div>
+        </div>
+    </div>
+
+    <div class="info-box" style="margin-top: 30px;">
+        <h4><i class="fas fa-lightbulb"></i>Excel Files</h4>
+        <p>For Excel files (.xlsx, .xls), convert them to pandas DataFrame using <code style="background: #f7fafc; padding: 2px 8px; border-radius: 4px;">pd.read_excel()</code> and then use <strong>create_pandas_dataframe_agent</strong> for analysis</p>
+    </div>
+</div>
+
+
+        <!-- Slide 4: SQL/CSV/Excel Agents -->
+        <div class="slide">
+            <div class="slide-header">
+                <i class="fas fa-table"></i>
+                <h1>SQL/CSV/Excel Agents with LangChain</h1>
+            </div>
+
+            <div class="info-box">
+                <h3 style="margin-bottom: 10px;">🎯 What Are They?</h3>
+                <p>Agents that can understand natural language queries and automatically generate and execute SQL queries, pandas operations, or Excel formulas to retrieve and analyze data.</p>
+            </div>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-icon bg-blue">
+                        <i class="fas fa-user text-blue"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <strong>User Query:</strong> "Show me total sales by region for Q1 2024"
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon bg-purple">
+                        <i class="fas fa-brain text-purple"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <strong>Agent Reasoning:</strong> Determines need for SQL query, identifies relevant tables and columns
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon bg-green">
+                        <i class="fas fa-code text-green"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <strong>Query Generation:</strong> Creates SQL: <code>SELECT region, SUM(amount) FROM sales WHERE date >= '2024-01-01' GROUP BY region</code>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon bg-orange">
+                        <i class="fas fa-chart-bar text-orange"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <strong>Results:</strong> Executes query and presents formatted results to user
+                    </div>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>💡 Real-World Use Case:</strong> Business analyst asks "Which products had declining sales last quarter?" - Agent automatically queries database, analyzes trends, and generates insights without writing SQL.</p>
+            </div>
+        </div>
+        <!-- Slide 6: When to Use Tabular Agents -->
+        <div class="slide">
+            <div class="slide-header">
+                <i class="fas fa-compass"></i>
+                <h1>When to Use Tabular Data Agents</h1>
+            </div>
+
+            <div class="grid-2">
+                <div class="card bg-green">
+                    <h3><i class="fas fa-check-circle text-green"></i> Perfect Use Cases</h3>
+                    <ul style="margin-top: 15px;">
+                        <li>✓ <strong>Business Intelligence:</strong> Ad-hoc queries from non-technical users</li>
+                        <li>✓ <strong>Data Exploration:</strong> Quick insights from new datasets</li>
+                        <li>✓ <strong>Report Generation:</strong> Automated monthly/weekly reports</li>
+                        <li>✓ <strong>Customer Support:</strong> Query customer data in real-time</li>
+                        <li>✓ <strong>Financial Analysis:</strong> Analyze transactions and trends</li>
+                        <li>✓ <strong>Research:</strong> Query experimental data</li>
+                    </ul>
+                </div>
+
+                <div class="card bg-red">
+                    <h3><i class="fas fa-exclamation-triangle text-red"></i> Avoid When</h3>
+                    <ul style="margin-top: 15px;">
+                        <li>✗ <strong>Mission Critical:</strong> Systems requiring 100% accuracy</li>
+                        <li>✗ <strong>Complex Logic:</strong> Multi-step transformations better in code</li>
+                        <li>✗ <strong>Real-Time Systems:</strong> Millisecond latency requirements</li>
+                        <li>✗ <strong>Data Privacy:</strong> Highly sensitive data without proper controls</li>
+                        <li>✗ <strong>Large Scale:</strong> Processing millions of rows (use batch processing)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <h3 style="margin-bottom: 10px;"><i class="fas fa-lightbulb"></i> Example Scenario</h3>
+                <p><strong>Problem:</strong> Marketing team needs daily campaign performance reports but doesn't know SQL.</p>
+                <p><strong>Solution:</strong> Deploy a CSV/SQL agent that answers queries like "Show me CTR by campaign for last week" or "Which ads performed best on mobile?"</p>
+                <p><strong>Impact:</strong> Team gets instant insights, data team saves 5+ hours/week.</p>
+            </div>
+        </div>
+
+        <!-- Slide 7: Multimodal RAG Introduction -->
+        <div class="slide">
+            <div class="slide-header">
+                <i class="fas fa-layer-group"></i>
+                <h1>Multimodal RAG (Retrieval Augmented Generation)</h1>
+            </div>
+
+            <div class="info-box">
+                <h3 style="margin-bottom: 10px;">🎯 What is Multimodal RAG?</h3>
+                <p style="font-size: 16px;">Traditional RAG works with text only. Multimodal RAG extends this to handle <strong>images, tables, charts, diagrams, and mixed content</strong> from documents like PDFs, PowerPoints, and web pages.</p>
+            </div>
+
+            <div class="grid-2" style="margin-top: 30px;">
+                <div>
+                    <h3 style="margin-bottom: 15px;"><i class="fas fa-file-alt text-blue"></i> Traditional RAG</h3>
+                    <div class="card bg-blue">
+                        <ul>
+                            <li>📄 Text documents only</li>
+                            <li>🔤 Text embeddings</li>
+                            <li>📝 Simple chunk retrieval</li>
+                            <li>⚡ Fast but limited</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <h3 style="margin-bottom: 15px;"><i class="fas fa-images text-purple"></i> Multimodal RAG</h3>
+                    <div class="card bg-purple">
+                        <ul>
+                            <li>🖼️ Images + Text + Tables</li>
+                            <li>🧠 Vision + Text embeddings</li>
+                            <li>🔍 Context-aware retrieval</li>
+                            <li>🎯 Comprehensive understanding</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>💡 Why It Matters:</strong> Most business documents contain a mix of text, charts, tables, and images. Multimodal RAG ensures you don't lose 40-60% of document information that's locked in non-text formats.</p>
+            </div>
+        </div>
+
+       <!-- Slide 8: Document Parsing Libraries -->
+<div class="slide">
+    <div class="slide-header">
+        <i class="fas fa-file-alt"></i>
+        <h1>Document Parsing Libraries</h1>
+    </div>
+
+    <div class="grid-2">
+        <div class="card bg-blue">
+            <i class="fas fa-cube text-blue"></i>
+            <h3>Unstructured</h3>
+            <ul style="margin-top: 10px;">
+                <li>✓ <strong>Multi-Format Support:</strong> PDFs, Word, HTML, Images, PPT</li>
+                <li>✓ <strong>Layout Detection:</strong> Identifies document structure intelligently</li>
+                <li>✓ <strong>Text & Tables:</strong> Extracts both seamlessly</li>
+                <li>✓ <strong>OCR Integration:</strong> Built-in support for scanned documents</li>
+            </ul>
+            <div class="badge bg-green" style="background: #38a169; color: white; margin-top: 10px;">Best for: Comprehensive parsing</div>
+        </div>
+
+        <div class="card bg-purple">
+            <i class="fas fa-bolt text-purple"></i>
+            <h3>PyMuPDF (fitz)</h3>
+            <ul style="margin-top: 10px;">
+                <li>✓ <strong>High-Speed:</strong> Fastest PDF text extraction</li>
+                <li>✓ <strong>Text-Based PDFs:</strong> Works best with digital PDFs</li>
+                <li>✓ <strong>Metadata Access:</strong> Extract PDF properties and structure</li>
+                <li>✓ <strong>Image Extraction:</strong> Pull embedded images from PDFs</li>
+            </ul>
+            <div class="badge bg-blue" style="background: #3182ce; color: white; margin-top: 10px;">Best for: Speed-critical applications</div>
+        </div>
+
+        <div class="card bg-green">
+            <i class="fas fa-table text-green"></i>
+            <h3>pdfplumber</h3>
+            <ul style="margin-top: 10px;">
+                <li>✓ <strong>Structured Data:</strong> Excellent for tables and forms</li>
+                <li>✓ <strong>User-Friendly API:</strong> Easy to use and intuitive</li>
+                <li>✓ <strong>Machine-Generated PDFs:</strong> Works great with digital documents</li>
+                <li>✓ <strong>Text Positioning:</strong> Precise coordinate-based extraction</li>
+            </ul>
+            <div class="badge bg-purple" style="background: #805ad5; color: white; margin-top: 10px;">Best for: Tables & structured PDFs</div>
+        </div>
+
+        <div class="card bg-orange">
+            <i class="fas fa-magic text-orange"></i>
+            <h3>LlamaParse</h3>
+            <ul style="margin-top: 10px;">
+                <li>✓ <strong>AI-Powered:</strong> Intelligent layout understanding</li>
+                <li>✓ <strong>RAG-Optimized:</strong> Outputs LLM-ready Markdown</li>
+                <li>✓ <strong>Complex Layouts:</strong> Handles multi-column, nested structures</li>
+                <li>✓ <strong>API-Based:</strong> Cloud service with continuous improvements</li>
+            </ul>
+            <div class="badge bg-green" style="background: #38a169; color: white; margin-top: 10px;">Best for: RAG applications</div>
+        </div>
+    </div>
+
+    <!-- <div class="info-box" style="margin-top: 30px;">
+        <h4><i class="fas fa-lightbulb"></i> Choosing the Right Tool</h4>
+        <p><strong>Unstructured:</strong> General purpose, multiple formats | <strong>PyMuPDF:</strong> Speed matters | <strong>pdfplumber:</strong> Tables focus | <strong>LlamaParse:</strong> Complex PDFs for RAG</p>
+    </div> -->
+</div>
+
+<!-- Slide 9: Processing Images & Multi-Modal Data -->
+<div class="slide">
+    <div class="slide-header">
+        <i class="fas fa-image"></i>
+        <h1>Processing Images & Multi-Modal Data</h1>
+    </div>
+
+    <div class="grid-2">
+        <div class="card bg-green">
+            <i class="fas fa-cube text-green"></i>
+            <h3>LlamaIndex Multi-Modal</h3>
+            <ul style="margin-top: 10px;">
+                <li>✓ <strong>Multi-Modal Vector Store:</strong> Stores text + image embeddings together</li>
+                <li>✓ <strong>Vision Models:</strong> GPT-4V, Claude 3, or CLIP for image understanding</li>
+                <li>✓ <strong>Unified Retrieval:</strong> Query across text and images simultaneously</li>
+                <li>✓ <strong>Context Fusion:</strong> Combines surrounding text with image data</li>
+            </ul>
+            <div class="badge bg-blue" style="background: #3182ce; color: white; margin-top: 10px;">Best for: RAG with images</div>
+        </div>
+
+        <div class="card bg-blue">
+            <i class="fas fa-puzzle-piece text-blue"></i>
+            <h3>Unstructured.io for Images</h3>
+            <ul style="margin-top: 10px;">
+                <li>✓ <strong>Image Partitioning:</strong> Detects and extracts images from documents</li>
+                <li>✓ <strong>OCR Support:</strong> Tesseract integration for text in images</li>
+                <li>✓ <strong>Layout Analysis:</strong> Understands image placement in documents</li>
+                <li>✓ <strong>Metadata Extraction:</strong> Captures image properties and context</li>
+            </ul>
+            <div class="badge bg-purple" style="background: #805ad5; color: white; margin-top: 10px;">Best for: Document image extraction</div>
+        </div>
+    </div>
+
+    <div class="feature-grid" style="margin-top: 30px;">
+        <div class="feature-item">
+            <i class="fas fa-chart-pie text-blue"></i>
+            <div>
+                <strong>Charts & Graphs</strong>
+                <p>Extract data points, understand trends, answer questions about visualizations</p>
+            </div>
+        </div>
+        <div class="feature-item">
+            <i class="fas fa-file-invoice text-purple"></i>
+            <div>
+                <strong>Forms & Invoices</strong>
+                <p>Extract structured data from scanned forms, receipts, and invoices</p>
+            </div>
+        </div>
+        <div class="feature-item">
+            <i class="fas fa-microscope text-green"></i>
+            <div>
+                <strong>Scientific Diagrams</strong>
+                <p>Understand complex diagrams in research papers and technical documents</p>
+            </div>
+        </div>
+        <div class="feature-item">
+            <i class="fas fa-map text-orange"></i>
+            <div>
+                <strong>Maps & Layouts</strong>
+                <p>Extract location info, understand floor plans and architectural drawings</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+        <!-- Slide 9: Multimodal RAG Use Cases -->
+        <div class="slide">
+            <div class="slide-header">
+                <i class="fas fa-briefcase"></i>
+                <h1>Real-World Multimodal RAG Use Cases</h1>
+            </div>
+
+            <div class="grid-2">
+                <div class="card bg-blue">
+                    <i class="fas fa-hospital text-blue"></i>
+                    <h3>Healthcare</h3>
+                    <p style="margin: 10px 0;"><strong>Scenario:</strong> Medical records with X-rays, lab reports, and doctor's notes</p>
+                    <p><strong>Agent Task:</strong> "Show me all patients with chest X-rays indicating pneumonia in the last month"</p>
+                    <p style="margin-top: 10px; font-size: 13px; color: #666;">Combines image analysis + text search + structured data</p>
+                </div>
+
+                <div class="card bg-purple">
+                    <i class="fas fa-balance-scale text-purple"></i>
+                    <h3>Legal</h3>
+                    <p style="margin: 10px 0;"><strong>Scenario:</strong> Contracts with signatures, charts, and legal text</p>
+                    <p><strong>Agent Task:</strong> "Find all contracts with revenue share clauses and extract the percentage splits"</p>
+                    <p style="margin-top: 10px; font-size: 13px; color: #666;">Processes mixed text, tables, and signature verification</p>
+                </div>
+
+                <div class="card bg-green">
+                    <i class="fas fa-industry text-green"></i>
+                    <h3>Manufacturing</h3>
+                    <p style="margin: 10px 0;"><strong>Scenario:</strong> Equipment manuals with diagrams and specifications</p>
+                    <p><strong>Agent Task:</strong> "What's the maintenance procedure for motor #A245 shown in the diagram?"</p>
+                    <p style="margin-top: 10px; font-size: 13px; color: #666;">Understands technical diagrams + procedural text</p>
+                </div>
+
+                <div class="card bg-orange">
+                    <i class="fas fa-graduation-cap text-orange"></i>
+                    <h3>Education</h3>
+                    <p style="margin: 10px 0;"><strong>Scenario:</strong> Textbooks with equations, diagrams, and examples</p>
+                    <p><strong>Agent Task:</strong> "Explain the graph on page 42 and how it relates to the theorem"</p>
+                    <p style="margin-top: 10px; font-size: 13px; color: #666;">Visual understanding + conceptual explanation</p>
+                </div>
+
+                <div class="card bg-indigo">
+                    <i class="fas fa-shopping-cart text-purple"></i>
+                    <h3>E-commerce</h3>
+                    <p style="margin: 10px 0;"><strong>Scenario:</strong> Product catalogs with images and specifications</p>
+                    <p><strong>Agent Task:</strong> "Find sofas similar to this image under $1000"</p>
+                    <p style="margin-top: 10px; font-size: 13px; color: #666;">Visual similarity search + price filtering</p>
+                </div>
+
+                <div class="card bg-pink">
+                    <i class="fas fa-chart-line text-red"></i>
+                    <h3>Financial Services</h3>
+                    <p style="margin: 10px 0;"><strong>Scenario:</strong> Quarterly reports with charts and tables</p>
+                    <p><strong>Agent Task:</strong> "Analyze the revenue trend chart and compare with competitor data"</p>
+                    <p style="margin-top: 10px; font-size: 13px; color: #666;">Chart analysis + comparative reasoning</p>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>🎯 Key Insight:</strong> Multimodal RAG unlocks 40-60% more information from documents. In industries like healthcare and legal, this can be the difference between compliance and costly mistakes.</p>
+            </div>
+        </div>
+
+        <!-- Slide 10: Multi-Agent Systems Introduction -->
+        <div class="slide">
+            <div class="slide-header">
+                <i class="fas fa-users"></i>
+                <h1>Introduction to Multi-Agent Systems</h1>
+            </div>
+
+            <div class="info-box">
+                <h3 style="margin-bottom: 10px;">🤖 What are Multi-Agent Systems?</h3>
+                <p style="font-size: 16px;">Multiple AI agents working together, each with specialized roles and capabilities, collaborating to solve complex problems that single agents cannot handle efficiently.</p>
+            </div>
+
+            <div class="grid-2" style="margin-top: 30px;">
+                <div>
+                    <h3 style="margin-bottom: 15px; color: #e53e3e;"><i class="fas fa-user text-red"></i> Single Agent</h3>
+                    <div class="card bg-red">
+                        <ul>
+                            <li>❌ Jack of all trades, master of none</li>
+                            <li>❌ Long, complex prompts</li>
+                            <li>❌ Struggles with multi-step tasks</li>
+                            <li>❌ No specialization</li>
+                            <li>❌ Limited error recovery</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <h3 style="margin-bottom: 15px; color: #38a169;"><i class="fas fa-users text-green"></i> Multi-Agent System</h3>
+                    <div class="card bg-green">
+                        <ul>
+                            <li>✓ Specialized expert agents</li>
+                            <li>✓ Clear role separation</li>
+                            <li>✓ Parallel processing</li>
+                            <li>✓ Better accuracy per domain</li>
+                            <li>✓ Self-correction through review</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="timeline" style="margin-top: 30px;">
+                <h3 style="margin-bottom: 20px;"><i class="fas fa-project-diagram"></i> How Multi-Agent Systems Work</h3>
+                <div class="timeline-item">
+                    <div class="timeline-icon bg-blue">
+                        <i class="fas fa-clipboard-list text-blue"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <strong>1. Task Decomposition:</strong> Manager agent breaks down complex task into subtasks
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon bg-purple">
+                        <i class="fas fa-route text-purple"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <strong>2. Agent Assignment:</strong> Route each subtask to the most qualified specialist agent
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon bg-green">
+                        <i class="fas fa-tasks text-green"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <strong>3. Parallel Execution:</strong> Multiple agents work simultaneously on their assigned tasks
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon bg-orange">
+                        <i class="fas fa-check-double text-orange"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <strong>4. Review & Synthesis:</strong> Quality checker validates and synthesizes results
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Multi-Agent Architecture Patterns -->
+        <div class="slide">
+            <div class="slide-header">
+                <i class="fas fa-sitemap"></i>
+                <h1>Multi-Agent Architecture Patterns</h1>
+            </div>
+
+            <div class="grid-2">
+                <div class="card bg-blue">
+                    <i class="fas fa-crown text-blue"></i>
+                    <h3>1. Hierarchical (Manager-Worker)</h3>
+                    <p style="margin: 10px 0; font-size: 14px;">One manager agent delegates tasks to worker agents</p>
+                    <div style="background: white; padding: 15px; border-radius: 8px; margin-top: 10px;">
+                        <p style="font-size: 13px;"><strong>Use When:</strong> Clear task breakdown possible</p>
+                        <p style="font-size: 13px; margin-top: 5px;"><strong>Example:</strong> Research assistant → Searcher, Summarizer, Writer agents</p>
+                    </div>
+                </div>
+
+                <div class="card bg-purple">
+                    <i class="fas fa-comments text-purple"></i>
+                    <h3>2. Collaborative (Peer-to-Peer)</h3>
+                    <p style="margin: 10px 0; font-size: 14px;">Agents discuss and debate to reach consensus</p>
+                    <div style="background: white; padding: 15px; border-radius: 8px; margin-top: 10px;">
+                        <p style="font-size: 13px;"><strong>Use When:</strong> Need diverse perspectives</p>
+                        <p style="font-size: 13px; margin-top: 5px;"><strong>Example:</strong> Code review → Developer, Security Expert, Performance Analyst</p>
+                    </div>
+                </div>
+
+                <div class="card bg-green">
+                    <i class="fas fa-forward text-green"></i>
+                    <h3>3. Sequential (Pipeline)</h3>
+                    <p style="margin: 10px 0; font-size: 14px;">Output of one agent feeds into the next</p>
+                    <div style="background: white; padding: 15px; border-radius: 8px; margin-top: 10px;">
+                        <p style="font-size: 13px;"><strong>Use When:</strong> Step-by-step refinement needed</p>
+                        <p style="font-size: 13px; margin-top: 5px;"><strong>Example:</strong> Content creation → Researcher → Writer → Editor → SEO Optimizer</p>
+                    </div>
+                </div>
+
+                <div class="card bg-orange">
+                    <i class="fas fa-project-diagram text-orange"></i>
+                    <h3>4. Dynamic (Adaptive Routing)</h3>
+                    <p style="margin: 10px 0; font-size: 14px;">Router dynamically selects agents based on input</p>
+                    <div style="background: white; padding: 15px; border-radius: 8px; margin-top: 10px;">
+                        <p style="font-size: 13px;"><strong>Use When:</strong> Variable task types</p>
+                        <p style="font-size: 13px; margin-top: 5px;"><strong>Example:</strong> Customer support → Route to Billing, Technical, or Sales agent</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>💡 Pro Tip:</strong> Start with hierarchical pattern for simplicity, then evolve to collaborative or dynamic patterns as complexity increases.</p>
+            </div>
+        </div>
+
+        <!-- Slide 12: Multi-Agent Frameworks -->
+        <div class="slide">
+            <div class="slide-header">
+                <i class="fas fa-toolbox"></i>
+                <h1>Popular Multi-Agent Frameworks</h1>
+            </div>
+
+            <div class="grid-2">
+                <div class="card bg-blue">
+                    <i class="fas fa-robot text-blue"></i>
+                    <h3>AutoGen (Microsoft)</h3>
+                    <ul style="margin-top: 10px; font-size: 14px;">
+                        <li>✓ Conversational agents with human-in-the-loop</li>
+                        <li>✓ Built-in group chat for agent collaboration</li>
+                        <li>✓ Code execution capabilities</li>
+                        <li>✓ Easy agent customization</li>
+                    </ul>
+                    <div class="badge bg-blue" style="background: #3182ce; color: white; margin-top: 10px;">Best for: Research & development tasks</div>
+                </div>
+
+                <div class="card bg-purple">
+                    <i class="fas fa-link text-purple"></i>
+                    <h3>LangGraph (LangChain)</h3>
+                    <ul style="margin-top: 10px; font-size: 14px;">
+                        <li>✓ Graph-based workflow orchestration</li>
+                        <li>✓ State management across agents</li>
+                        <li>✓ Conditional routing and loops</li>
+                        <li>✓ Strong production deployment support</li>
+                    </ul>
+                    <div class="badge bg-purple" style="background: #805ad5; color: white; margin-top: 10px;">Best for: Production applications</div>
+                </div>
+
+                <div class="card bg-green">
+                    <i class="fas fa-users-cog text-green"></i>
+                    <h3>CrewAI</h3>
+                    <ul style="margin-top: 10px; font-size: 14px;">
+                        <li>✓ Role-based agent design</li>
+                        <li>✓ Built-in collaboration patterns</li>
+                        <li>✓ Simple API, quick setup</li>
+                        <li>✓ Memory and context sharing</li>
+                    </ul>
+                    <div class="badge bg-green" style="background: #38a169; color: white; margin-top: 10px;">Best for: Quick prototyping</div>
+                </div>
+
+                <div class="card bg-orange">
+                    <!-- <i class="fas fa-brain text-orange"></i> -->
+                    <h3>& many more...</h3>
+                    <ul style="margin-top: 10px; font-size: 14px;">
+                        <li>✓ Details in Week 5</li>
+                        <!-- <li>✓ Standardized operating procedures</li>
+                        <li>✓ Code generation & review workflows</li>
+                        <li>✓ Document generation</li> -->
+                    </ul>
+                    <!-- <div class="badge bg-orange" style="background: #dd6b20; color: white; margin-top: 10px;">Best for: Software engineering</div> -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13: Real-World Multi-Agent Examples -->
+        <div class="slide">
+            <div class="slide-header">
+                <i class="fas fa-rocket"></i>
+                <h1>Real-World Multi-Agent System Examples</h1>
+            </div>
+
+            <div class="card bg-blue" style="margin-bottom: 20px;">
+                <h3><i class="fas fa-newspaper text-blue"></i> Example 1: AI News Agency</h3>
+                <div class="grid-3" style="margin-top: 15px;">
+                    <div>
+                        <strong class="text-blue">🔍 Researcher Agent</strong>
+                        <p style="font-size: 13px; margin-top: 5px;">Searches web for latest news, gathers sources</p>
+                    </div>
+                    <div>
+                        <strong class="text-purple">✍️ Writer Agent</strong>
+                        <p style="font-size: 13px; margin-top: 5px;">Crafts article from research, maintains tone</p>
+                    </div>
+                    <div>
+                        <strong class="text-green">✅ Editor Agent</strong>
+                        <p style="font-size: 13px; margin-top: 5px;">Fact-checks, improves clarity, checks grammar</p>
+                    </div>
+                </div>
+                <p style="margin-top: 15px; font-size: 14px;"><strong>Outcome:</strong> Publish 10+ articles daily with 95% accuracy, reducing human effort by 70%</p>
+            </div>
+
+            <div class="card bg-purple" style="margin-bottom: 20px;">
+                <h3><i class="fas fa-code text-purple"></i> Example 2: Software Development Team</h3>
+                <div class="grid-4" style="margin-top: 15px;">
+                    <div>
+                        <strong class="text-blue">👨‍💼 Product Manager</strong>
+                        <p style="font-size: 13px; margin-top: 5px;">Defines requirements</p>
+                    </div>
+                    <div>
+                        <strong class="text-purple">👩‍💻 Developer</strong>
+                        <p style="font-size: 13px; margin-top: 5px;">Writes code</p>
+                    </div>
+                    <div>
+                        <strong class="text-green">🔒 Security Expert</strong>
+                        <p style="font-size: 13px; margin-top: 5px;">Reviews vulnerabilities</p>
+                    </div>
+                    <div>
+                        <strong class="text-orange">🧪 QA Tester</strong>
+                        <p style="font-size: 13px; margin-top: 5px;">Tests functionality</p>
+                    </div>
+                </div>
+                <p style="margin-top: 15px; font-size: 14px;"><strong>Outcome:</strong> Generate production-ready code with built-in security and testing, 5x faster development</p>
+            </div>
+
+            <div class="card bg-green" style="margin-bottom: 20px;">
+                <h3><i class="fas fa-chart-line text-green"></i> Example 3: Financial Analysis System</h3>
+                <div class="grid-3" style="margin-top: 15px;">
+                    <div>
+                        <strong class="text-blue">📊 Data Analyst</strong>
+                        <p style="font-size: 13px; margin-top: 5px;">Queries databases, extracts metrics</p>
+                    </div>
+                    <div>
+                        <strong class="text-purple">🤖 ML Engineer</strong>
+                        <p style="font-size: 13px; margin-top: 5px;">Builds predictive models</p>
+                    </div>
+                    <div>
+                        <strong class="text-green">📈 Strategist</strong>
+                        <p style="font-size: 13px; margin-top: 5px;">Provides investment recommendations</p>
+                    </div>
+                </div>
+                <p style="margin-top: 15px; font-size: 14px;"><strong>Outcome:</strong> Comprehensive market analysis in minutes vs. hours, with data-driven insights</p>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>🎯 Key Pattern:</strong> Each agent excels in its specialty, and collaboration produces results better than any single agent could achieve.</p>
+            </div>
+        </div>
+
+        <!-- Slide 14: When to Use Multi-Agent Systems -->
+        <div class="slide">
+            <div class="slide-header">
+                <i class="fas fa-balance-scale"></i>
+                <h1>When to Use Multi-Agent Systems</h1>
+            </div>
+
+            <div class="pros-cons">
+                <div class="pros">
+                    <h3 style="margin-bottom: 15px;"><i class="fas fa-check-circle text-green"></i> Use Multi-Agent When:</h3>
+                    <ul style="font-size: 14px;">
+                        <li>✓ <strong>Complex Multi-Step Tasks:</strong> Research → Analysis → Report generation</li>
+                        <li>✓ <strong>Need for Specialization:</strong> Legal + Financial + Technical expertise</li>
+                        <li>✓ <strong>Quality is Critical:</strong> Multiple review layers needed</li>
+                        <li>✓ <strong>Parallel Processing:</strong> Can break into independent subtasks</li>
+                        <li>✓ <strong>Diverse Tool Requirements:</strong> SQL, APIs, web search, code execution</li>
+                        <li>✓ <strong>Iterative Refinement:</strong> Feedback loops improve output</li>
+                        <li>✓ <strong>Scalability Needed:</strong> Add agents as requirements grow</li>
+                    </ul>
+                </div>
+
+                <div class="cons">
+                    <h3 style="margin-bottom: 15px;"><i class="fas fa-times-circle text-red"></i> Stick with Single Agent When:</h3>
+                    <ul style="font-size: 14px;">
+                        <li>✗ <strong>Simple Tasks:</strong> Basic Q&A, simple lookups</li>
+                        <li>✗ <strong>Low Latency Required:</strong> Sub-second responses needed</li>
+                        <li>✗ <strong>Cost Sensitive:</strong> Limited API budget</li>
+                        <li>✗ <strong>Straightforward Domain:</strong> Single area of expertise</li>
+                        <li>✗ <strong>Quick Prototyping:</strong> MVP or proof of concept</li>
+                        <li>✗ <strong>Limited Context:</strong> Task fits in single prompt</li>
+                        <li>✗ <strong>Sequential Only:</strong> No parallelization possible</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h3 style="margin-bottom: 10px;"><i class="fas fa-calculator"></i> Cost-Benefit Analysis</h3>
+                <div class="grid-2">
+                    <div>
+                        <strong>Single Agent</strong>
+                        <p style="font-size: 13px; margin-top: 5px;">💰 Cost: $0.01 per query</p>
+                        <p style="font-size: 13px;">⏱️ Time: 3 seconds</p>
+                        <p style="font-size: 13px;">🎯 Accuracy: 70%</p>
+                    </div>
+                    <div>
+                        <strong>Multi-Agent (3 agents)</strong>
+                        <p style="font-size: 13px; margin-top: 5px;">💰 Cost: $0.04 per query</p>
+                        <p style="font-size: 13px;">⏱️ Time: 8 seconds</p>
+                        <p style="font-size: 13px;">🎯 Accuracy: 92%</p>
+                    </div>
+                </div>
+                <p style="margin-top: 15px; font-size: 14px;"><strong>Decision:</strong> For high-stakes applications (legal, medical, financial), the accuracy gain justifies the cost.</p>
+            </div>
+        </div>
+
+        <!-- Slide 15: Building Your First Multi-Agent System -->
+        <div class="slide">
+            <div class="slide-header">
+                <i class="fas fa-hammer"></i>
+                <h1>Building Your First Multi-Agent System</h1>
+            </div>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-icon bg-blue">
+                        <span style="color: white; font-weight: bold;">1</span>
+                    </div>
+                    <div class="timeline-content">
+                        <strong>Define the Problem</strong>
+                        <p style="font-size: 13px; margin-top: 5px;">What complex task needs to be solved? What are the subtasks?</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon bg-purple">
+                        <span style="color: white; font-weight: bold;">2</span>
+                    </div>
+                    <div class="timeline-content">
+                        <strong>Identify Agent Roles</strong>
+                        <p style="font-size: 13px; margin-top: 5px;">What specialists do you need? (researcher, analyst, writer, etc.)</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon bg-green">
+                        <span style="color: white; font-weight: bold;">3</span>
+                    </div>
+                    <div class="timeline-content">
+                        <strong>Design Communication Flow</strong>
+                        <p style="font-size: 13px; margin-top: 5px;">How will agents pass information? Sequential, parallel, or collaborative?</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon bg-orange">
+                        <span style="color: white; font-weight: bold;">4</span>
+                    </div>
+                    <div class="timeline-content">
+                        <strong>Assign Tools & Capabilities</strong>
+                        <p style="font-size: 13px; margin-top: 5px;">What tools does each agent need? APIs, databases, search?</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon bg-red">
+                        <span style="color: white; font-weight: bold;">5</span>
+                    </div>
+                    <div class="timeline-content">
+                        <strong>Implement & Test</strong>
+                        <p style="font-size: 13px; margin-top: 5px;">Start with 2-3 agents, validate outputs, iterate</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 16: Best Practices & Tips -->
+        <div class="slide">
+            <div class="slide-header">
+                <i class="fas fa-star"></i>
+                <h1>Best Practices for GenAI Agents</h1>
+            </div>
+
+            <div class="grid-2">
+                <div class="card bg-blue">
+                    <h3><i class="fas fa-shield-alt text-blue"></i> Safety & Reliability</h3>
+                    <ul style="font-size: 14px; margin-top: 10px;">
+                        <li>✓ <strong>Input Validation:</strong> Sanitize all user inputs</li>
+                        <li>✓ <strong>Output Verification:</strong> Add checker agents for critical tasks</li>
+                        <li>✓ <strong>Fallback Mechanisms:</strong> Handle failures gracefully</li>
+                        <li>✓ <strong>Rate Limiting:</strong> Protect against API abuse</li>
+                        <li>✓ <strong>Audit Logs:</strong> Track all agent actions</li>
+                    </ul>
+                </div>
+
+                <div class="card bg-purple">
+                    <h3><i class="fas fa-tachometer-alt text-purple"></i> Performance Optimization</h3>
+                    <ul style="font-size: 14px; margin-top: 10px;">
+                        <li>✓ <strong>Caching:</strong> Store frequent queries</li>
+                        <li>✓ <strong>Parallel Execution:</strong> Run independent agents simultaneously</li>
+                        <li>✓ <strong>Prompt Optimization:</strong> Clear, concise instructions</li>
+                        <li>✓ <strong>Model Selection:</strong> Use faster models for simple tasks</li>
+                        <li>✓ <strong>Streaming:</strong> Show progress for long operations</li>
+                    </ul>
+                </div>
+
+                <div class="card bg-green">
+                    <h3><i class="fas fa-dollar-sign text-green"></i> Cost Management</h3>
+                    <ul style="font-size: 14px; margin-top: 10px;">
+                        <li>✓ <strong>Token Budgets:</strong> Set limits per agent/task</li>
+                        <li>✓ <strong>Smart Routing:</strong> Use cheaper models when possible</li>
+                        <li>✓ <strong>Batch Processing:</strong> Group similar requests</li>
+                        <li>✓ <strong>Monitoring:</strong> Track costs per agent/user</li>
+                        <li>✓ <strong>Exit Conditions:</strong> Stop infinite loops early</li>
+                    </ul>
+                </div>
+
+                <div class="card bg-orange">
+                    <h3><i class="fas fa-users text-orange"></i> User Experience</h3>
+                    <ul style="font-size: 14px; margin-top: 10px;">
+                        <li>✓ <strong>Progress Indicators:</strong> Show what agents are doing</li>
+                        <li>✓ <strong>Intermediate Results:</strong> Stream outputs progressively</li>
+                        <li>✓ <strong>Error Messages:</strong> Human-friendly explanations</li>
+                        <li>✓ <strong>Explanability:</strong> Show reasoning steps</li>
+                        <li>✓ <strong>Human-in-the-Loop:</strong> Allow intervention when needed</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <p><strong>⚠️ Common Pitfalls to Avoid:</strong></p>
+                <ul style="margin-top: 10px; font-size: 14px;">
+                    <li>❌ Over-engineering: Don't use multi-agents for simple tasks</li>
+                    <li>❌ No evaluation: Always test with real data before deployment</li>
+                    <li>❌ Ignoring latency: Consider user patience (>10s = frustration)</li>
+                    <li>❌ Assuming 100% accuracy: Build in verification steps</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 17: Putting It All Together -->
+        <div class="slide">
+            <div class="slide-header">
+                <i class="fas fa-puzzle-piece"></i>
+                <h1>Putting It All Together</h1>
+                <p>Complete End-to-End Example</p>
+            </div>
+
+            <div class="info-box">
+                <h3 style="margin-bottom: 15px;"><i class="fas fa-briefcase"></i> Use Case: Intelligent Business Report Generator</h3>
+                <p style="font-size: 15px;"><strong>Goal:</strong> Generate comprehensive quarterly business reports from multiple data sources (SQL databases, PDFs, images, Excel files)</p>
+            </div>
+
+            <div class="card bg-blue" style="margin-top: 20px;">
+                <h3 style="margin-bottom: 15px;">System Architecture</h3>
+                <div class="grid-4">
+                    <div>
+                        <strong class="text-blue">📊 Data Agent</strong>
+                        <p style="font-size: 12px; margin-top: 5px;"><strong>Tools:</strong> SQL, CSV, Excel</p>
+                        <p style="font-size: 12px;"><strong>Task:</strong> Extract sales, revenue, KPIs</p>
+                    </div>
+                    <div>
+                        <strong class="text-purple">🖼️ Visual Agent</strong>
+                        <p style="font-size: 12px; margin-top: 5px;"><strong>Tools:</strong> Multimodal RAG</p>
+                        <p style="font-size: 12px;"><strong>Task:</strong> Analyze charts, graphs</p>
+                    </div>
+                    <div>
+                        <strong class="text-green">📝 Document Agent</strong>
+                        <p style="font-size: 12px; margin-top: 5px;"><strong>Tools:</strong> PDF extraction</p>
+                        <p style="font-size: 12px;"><strong>Task:</strong> Extract text, tables</p>
+                    </div>
+                    <div>
+                        <strong class="text-orange">✍️ Writer Agent</strong>
+                        <p style="font-size: 12px; margin-top: 5px;"><strong>Tools:</strong> Template engine</p>
+                        <p style="font-size: 12px;"><strong>Task:</strong> Synthesize report</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="timeline" style="margin-top: 20px;">
+                <h3 style="margin-bottom: 15px;"><i class="fas fa-flow-chart"></i> Workflow</h3>
+                <div class="timeline-item">
+                    <div class="timeline-icon bg-blue">
+                        <i class="fas fa-database text-blue"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <strong>Step 1:</strong> Data Agent queries SQL database for Q3 revenue by region
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon bg-purple">
+                        <i class="fas fa-chart-bar text-purple"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <strong>Step 2:</strong> Visual Agent analyzes trend charts from marketing PDFs
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon bg-green">
+                        <i class="fas fa-file-pdf text-green"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <strong>Step 3:</strong> Document Agent extracts key metrics from competitor reports
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon bg-orange">
+                        <i class="fas fa-pen text-orange"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <strong>Step 4:</strong> Writer Agent synthesizes all data into coherent executive summary
+                    </div>
+                </div>
+            </div>
+
+            <div class="highlight-box" style="margin-top: 20px;">
+                <p><strong>⚡ Result:</strong> Complete 20-page report generated in <strong>5 minutes</strong> vs. <strong>8 hours</strong> manually. Combines structured data + unstructured insights + visual analysis automatically.</p>
+            </div>
+        </div>
+
+        <!-- Slide 18: Key Takeaways -->
+        <div class="slide">
+            <div class="slide-header">
+                <i class="fas fa-key"></i>
+                <h1>Key Takeaways - Week 4</h1>
+            </div>
+
+            <div class="grid-2">
+                <div class="card bg-blue">
+                    <h3><i class="fas fa-robot text-blue"></i> GenAI Agents</h3>
+                    <ul style="font-size: 14px; margin-top: 10px;">
+                        <li>✓ Move beyond chatbots to action-taking systems</li>
+                        <li>✓ Combine LLM reasoning with tool use</li>
+                        <li>✓ Enable autonomous task completion</li>
+                        <li>✓ Critical for enterprise automation</li>
+                    </ul>
+                </div>
+
+                <div class="card bg-purple">
+                    <h3><i class="fas fa-table text-purple"></i> Tabular Data Agents</h3>
+                    <ul style="font-size: 14px; margin-top: 10px;">
+                        <li>✓ Natural language to SQL/pandas</li>
+                        <li>✓ Democratize data access</li>
+                        <li>✓ Reduce analyst workload</li>
+                        <li>✓ Real-time business insights</li>
+                    </ul>
+                </div>
+
+                <div class="card bg-green">
+                    <h3><i class="fas fa-image text-green"></i> Multimodal RAG</h3>
+                    <ul style="font-size: 14px; margin-top: 10px;">
+                        <li>✓ Process images + text + tables together</li>
+                        <li>✓ Unlock 40-60% more document value</li>
+                        <li>✓ Essential for real-world documents</li>
+                        <li>✓ Use LlamaIndex/Unstructured.io</li>
+                    </ul>
+                </div>
+
+                <div class="card bg-orange">
+                    <h3><i class="fas fa-users text-orange"></i> Multi-Agent Systems</h3>
+                    <ul style="font-size: 14px; margin-top: 10px;">
+                        <li>✓ Specialized agents > generalist agent</li>
+                        <li>✓ Collaboration improves output quality</li>
+                        <li>✓ Handle complex, multi-step tasks</li>
+                        <li>✓ Use AutoGen, LangGraph, CrewAI</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- <div class="info-box" style="margin-top: 30px;">
+                <h3 style="margin-bottom: 15px;"><i class="fas fa-graduation-cap"></i> Progression Path</h3>
+                <div style="display: flex; align-items: center; justify-content: space-around; font-size: 14px;">
+                    <div style="text-align: center;">
+                        <div style="background: #e8f4f8; padding: 15px; border-radius: 10px; margin-bottom: 10px;">
+                            <strong>Week 1-2</strong>
+                        </div>
+                        <p>Basic RAG</p>
+                    </div>
+                    <div style="font-size: 24px; color: #3182ce;">→</div>
+                    <div style="text-align: center;">
+                        <div style="background: #e8f4f8; padding: 15px; border-radius: 10px; margin-bottom: 10px;">
+                            <strong>Week 3</strong>
+                        </div>
+                        <p>Advanced RAG</p>
+                    </div>
+                    <div style="font-size: 24px; color: #3182ce;">→</div>
+                    <div style="text-align: center;">
+                        <div style="background: #3182ce; color: white; padding: 15px; border-radius: 10px; margin-bottom: 10px;">
+                            <strong>Week 4</strong>
+                        </div>
+                        <p><strong>Agentic RAG</strong></p>
+                    </div>
+                    <div style="font-size: 24px; color: #3182ce;">→</div>
+                    <div style="text-align: center;">
+                        <div style="background: #e8f4f8; padding: 15px; border-radius: 10px; margin-bottom: 10px;">
+                            <strong>Production</strong>
+                        </div>
+                        <p>Full Systems</p>
+                    </div>
+                </div>
+            </div> -->
+
+            <!-- <div class="highlight-box" style="margin-top: 20px;">
+                <p style="font-size: 16px;"><strong>🎯 Your Next Steps:</strong></p>
+                <ol style="margin-top: 10px; font-size: 14px; margin-left: 20px;">
+                    <li>Build a simple SQL agent for your own dataset</li>
+                    <li>Experiment with multimodal RAG on PDF documents</li>
+                    <li>Create a 2-agent system (researcher + writer)</li>
+                    <li>Explore AutoGen or CrewAI tutorials</li>
+                    <li>Design a multi-agent system for your use case</li>
+                </ol>
+            </div> -->
+        </div>
+
+        <!-- Slide 19: Resources & Tools -->
+        <div class="slide">
+            <div class="slide-header">
+                <i class="fas fa-book"></i>
+                <h1>Resources & Tools</h1>
+            </div>
+
+            <div class="grid-2">
+                <div class="card bg-blue">
+                    <h3><i class="fas fa-code text-blue"></i> Frameworks & Libraries</h3>
+                    <ul style="font-size: 14px; margin-top: 10px;">
+                        <li><strong>LangChain:</strong> langchain.com</li>
+                        <li><strong>LangGraph:</strong> langchain-ai.github.io/langgraph</li>
+                        <li><strong>LlamaIndex:</strong> llamaindex.ai</li>
+                        <li><strong>AutoGen:</strong> microsoft.github.io/autogen</li>
+                        <li><strong>CrewAI:</strong> crewai.com</li>
+                        <li><strong>Unstructured.io:</strong> unstructured.io</li>
+                    </ul>
+                </div>
+
+                <div class="card bg-purple">
+                    <h3><i class="fas fa-graduation-cap text-purple"></i> Learning Resources</h3>
+                    <ul style="font-size: 14px; margin-top: 10px;">
+                        <li><strong>DeepLearning.AI:</strong> Agent courses</li>
+                        <li><strong>LangChain Academy:</strong> Free tutorials</li>
+                        <li><strong>Microsoft Learn:</strong> AutoGen guides</li>
+                        <li><strong>YouTube:</strong> Sam Witteveen, AI Jason</li>
+                        <li><strong>GitHub:</strong> Awesome-LLM-Agents repo</li>
+                        <li><strong>Papers:</strong> ReAct, AutoGPT, MetaGPT</li>
+                    </ul>
+                </div>
+
+                <div class="card bg-green">
+                    <h3><i class="fas fa-tools text-green"></i> Development Tools</h3>
+                    <ul style="font-size: 14px; margin-top: 10px;">
+                        <li><strong>LangSmith:</strong> Agent debugging & tracing</li>
+                        <li><strong>Weights & Biases:</strong> Experiment tracking</li>
+                        <li><strong>Portkey:</strong> Multi-LLM gateway</li>
+                        <li><strong>Helicone:</strong> Observability platform</li>
+                        <li><strong>LangFuse:</strong> Open-source monitoring</li>
+                    </ul>
+                </div>
+
+                <div class="card bg-orange">
+                    <h3><i class="fas fa-users text-orange"></i> Community</h3>
+                    <ul style="font-size: 14px; margin-top: 10px;">
+                        <li><strong>Discord:</strong> LangChain, LlamaIndex servers</li>
+                        <li><strong>Reddit:</strong> r/LangChain, r/LocalLLaMA</li>
+                        <li><strong>Twitter:</strong> #LLMAgents, #GenAI</li>
+                        <li><strong>LinkedIn:</strong> GenAI groups</li>
+                        <li><strong>Meetups:</strong> Local AI/ML groups</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="info-box" style="margin-top: 20px;">
+                <h3 style="margin-bottom: 10px;"><i class="fas fa-star"></i> Recommended Project Ideas</h3>
+                <div class="grid-3">
+                    <div>
+                        <strong class="text-blue">Beginner</strong>
+                        <p style="font-size: 13px; margin-top: 5px;">CSV analysis chatbot</p>
+                    </div>
+                    <div>
+                        <strong class="text-purple">Intermediate</strong>
+                        <p style="font-size: 13px; margin-top: 5px;">PDF Q&A with images</p>
+                    </div>
+                    <div>
+                        <strong class="text-green">Advanced</strong>
+                        <p style="font-size: 13px; margin-top: 5px;">Multi-agent research assistant</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 20: Q&A and Practice -->
+        <div class="slide">
+            <div class="slide-header">
+                <i class="fas fa-question-circle"></i>
+                <h1>Practice Exercises & Q&A</h1>
+            </div>
+
+            <div class="card bg-blue" style="margin-bottom: 20px;">
+                <h3><i class="fas fa-dumbbell text-blue"></i> Exercise 1: SQL Agent</h3>
+                <p style="margin: 10px 0; font-size: 14px;"><strong>Task:</strong> Create an agent that can query a sales database</p>
+                <ul style="font-size: 13px; margin-top: 10px;">
+                    <li>1. Set up SQLite database with sample sales data</li>
+                    <li>2. Implement LangChain SQL agent</li>
+                    <li>3. Test queries: "Top 5 products by revenue", "Sales trend by month"</li>
+                    <li>4. Add error handling for invalid queries</li>
+                </ul>
+                <div class="badge bg-blue" style="background: #3182ce; color: white; margin-top: 10px;">Time: 30 minutes</div>
+            </div>
+
+            <div class="card bg-purple" style="margin-bottom: 20px;">
+                <h3><i class="fas fa-dumbbell text-purple"></i> Exercise 2: Multimodal RAG</h3>
+                <p style="margin: 10px 0; font-size: 14px;"><strong>Task:</strong> Build a system to query PDF with images</p>
+                <ul style="font-size: 13px; margin-top: 10px;">
+                    <li>1. Use Unstructured.io to parse a PDF with charts</li>
+                    <li>2. Extract text, tables, and image descriptions</li>
+                    <li>3. Store in vector database (Chroma/Pinecone)</li>
+                    <li>4. Query: "What does the revenue chart show?"</li>
+                </ul>
+                <div class="badge bg-purple" style="background: #805ad5; color: white; margin-top: 10px;">Time: 45 minutes</div>
+            </div>
+
+            <div class="card bg-green" style="margin-bottom: 20px;">
+                <h3><i class="fas fa-dumbbell text-green"></i> Exercise 3: Multi-Agent System</h3>
+                <p style="margin: 10px 0; font-size: 14px;"><strong>Task:</strong> Create a 3-agent content creation system</p>
+                <ul style="font-size: 13px; margin-top: 10px;">
+                    <li>1. Researcher agent: Search web for topic info</li>
+                    <li>2. Writer agent: Create blog post from research</li>
+                    <li>3. Editor agent: Review and improve content</li>
+                    <li>4. Use CrewAI or AutoGen framework</li>
+                </ul>
+                <div class="badge bg-green" style="background: #38a169; color: white; margin-top: 10px;">Time: 60 minutes</div>
+            </div>
+
+            <div class="highlight-box">
+                <h3 style="margin-bottom: 10px;"><i class="fas fa-comments"></i> Discussion Questions</h3>
+                <ul style="font-size: 14px;">
+                    <li>💭 When would you choose a single agent vs multi-agent system?</li>
+                    <li>💭 How do you ensure agent outputs are accurate and safe?</li>
+                    <li>💭 What are the cost implications of using multiple agents?</li>
+                    <li>💭 How would you handle agent failures in production?</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Final Slide -->
+        <div class="slide">
+            <div class="slide-header">
+                <i class="fas fa-rocket"></i>
+                <h1>Thank You!</h1>
+                <p>Ready to Build Intelligent AI Systems</p>
+            </div>
+
+            <!-- <div class="grid-4" style="margin-top: 40px;">
+                <div class="card bg-blue">
+                    <i class="fas fa-check-circle text-blue" style="font-size: 48px;"></i>
+                    <h3 style="margin-top: 15px;">GenAI Agents</h3>
+                    <p style="font-size: 14px; margin-top: 10px;">Autonomous decision-making systems</p>
+                </div>
+                <div class="card bg-purple">
+                    <i class="fas fa-check-circle text-purple" style="font-size: 48px;"></i>
+                    <h3 style="margin-top: 15px;">Tabular Agents</h3>
+                    <p style="font-size: 14px; margin-top: 10px;">Natural language data queries</p>
+                </div>
+                <div class="card bg-green">
+                    <i class="fas fa-check-circle text-green" style="font-size: 48px;"></i>
+                    <h3 style="margin-top: 15px;">Multimodal RAG</h3>
+                    <p style="font-size: 14px; margin-top: 10px;">Images + Text + Tables</p>
+                </div>
+                <div class="card bg-orange">
+                    <i class="fas fa-check-circle text-orange" style="font-size: 48px;"></i>
+                    <h3 style="margin-top: 15px;">Multi-Agent</h3>
+                    <p style="font-size: 14px; margin-top: 10px;">Collaborative AI workflows</p>
+                </div>
+            </div> -->
+<!-- 
+            <div class="info-box" style="margin-top: 40px; text-align: center;">
+                <h3 style="font-size: 24px; margin-bottom: 15px;">🚀 Next Week Preview</h3>
+                <p style="font-size: 16px;"><strong>Week 5:</strong> Production Deployment, Monitoring, and Scaling GenAI Systems</p>
+                <p style="font-size: 14px; margin-top: 10px; color: #666;">Topics: MLOps for LLMs, Cost Optimization, Security, Real-world Case Studies</p>
+            </div> -->
+
+            <div class="highlight-box" style="margin-top: 30px; text-align: center;">
+                <p style="font-size: 18px;"><strong>📧 Questions? Reach out anytime!</strong></p>
+                <p style="font-size: 14px; margin-top: 10px;">Keep building, keep learning, keep innovating! 🎯</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Navigation -->
+    <div class="navigation">
+        <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">
+            <i class="fas fa-chevron-left"></i> Previous
+        </button>
+        <span class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">21</span>
+        </span>
+        <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">
+            Next <i class="fas fa-chevron-right"></i>
+        </button>
+    </div>
+
+    <script>
+
+        const LOGO_URL = 'logo.png';
+
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        
+        // Add logo to all slides
+        slides.forEach(slide => {
+            const logo = document.createElement('img');
+            logo.src = LOGO_URL;
+            logo.className = 'slide-logo';
+            logo.alt = 'Logo';
+            slide.insertBefore(logo, slide.firstChild);
+        });
+
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+            
+            document.getElementById('currentSlide').textContent = currentSlide + 1;
+            
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+        }
+
+        function changeSlide(direction) {
+            showSlide(currentSlide + direction);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (event.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        });
+
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>

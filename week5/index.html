@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Week 5: GenAI Agents Core Concepts</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #47D7AC 0%, #47D7AC 100%);
+        overflow: hidden;
+    }
+
+    .presentation {
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .slide {
+        background: white;
+        width: 90vw;
+        max-width: 1200px;
+        height: 85vh;
+        max-height: 900px;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        padding: 50px;
+        display: none;
+        flex-direction: column;
+        animation: slideIn 0.5s ease-out;
+        overflow-y: auto;
+    }
+
+    .slide.active {
+        display: flex;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    h1 {
+        color: #1e3a8a;
+        font-size: 2.8em;
+        margin-bottom: 15px;
+    }
+
+    h2 {
+        color: #3b82f6;
+        font-size: 2.2em;
+        margin-bottom: 25px;
+    }
+
+    h3 {
+        color: #1e3a8a;
+        font-size: 1.6em;
+        margin-bottom: 15px;
+    }
+
+    .subtitle {
+        font-size: 1.2em;
+        color: #666;
+        margin-bottom: 20px;
+    }
+
+    .emoji {
+        font-size: 4em;
+        text-align: center;
+        margin: 15px 0;
+    }
+
+    .content {
+        flex: 1;
+    }
+
+    .two-columns {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 25px;
+        margin: 20px 0;
+    }
+
+    .card {
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        padding: 25px;
+        border-radius: 15px;
+        border-left: 5px solid #1e3a8a;
+        transition: transform 0.3s;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+    }
+
+    .highlight-box {
+        background: linear-gradient(135deg, #dbeafe15 0%, #3b82f615 100%);
+        padding: 25px;
+        border-radius: 15px;
+        margin: 20px 0;
+        border-left: 5px solid #1e3a8a;
+    }
+
+    .example-box {
+        background: #fff3cd;
+        border-left: 5px solid #ffc107;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 15px 0;
+    }
+
+    .use-case-box {
+        background: #d1ecf1;
+        border-left: 5px solid #17a2b8;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 15px 0;
+    }
+
+    .advantage-box {
+        background: #d4edda;
+        border-left: 5px solid #28a745;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 15px 0;
+    }
+
+    ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    li {
+        padding: 10px 0;
+        font-size: 1.15em;
+        color: #333;
+        position: relative;
+        padding-left: 30px;
+    }
+
+    li:before {
+        content: "→";
+        position: absolute;
+        left: 0;
+        color: #1e3a8a;
+        font-weight: bold;
+        font-size: 1.3em;
+    }
+
+    .icon-text {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin: 15px 0;
+        font-size: 1.1em;
+    }
+
+    .icon-text .icon {
+        font-size: 2em;
+    }
+
+    .flow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+        margin: 20px 0;
+    }
+
+    .flow-item {
+        background: #1e3a8a;
+        color: white;
+        padding: 15px 20px;
+        border-radius: 10px;
+        font-weight: bold;
+        font-size: 1.1em;
+    }
+
+    .arrow {
+        color: #1e3a8a;
+        font-size: 2em;
+        font-weight: bold;
+    }
+
+    .comparison-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin: 20px 0;
+    }
+
+    .comparison-item {
+        background: white;
+        border: 3px solid #1e3a8a;
+        border-radius: 12px;
+        padding: 25px;
+        text-align: center;
+    }
+
+    .comparison-title {
+        font-size: 1.5em;
+        font-weight: bold;
+        color: #1e3a8a;
+        margin-bottom: 15px;
+    }
+
+    .controls {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        display: flex;
+        gap: 15px;
+        z-index: 100;
+    }
+
+    button {
+        background: white;
+        border: 2px solid #1e3a8a;
+        color: #1e3a8a;
+        padding: 15px 30px;
+        font-size: 1.1em;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-weight: bold;
+    }
+
+    button:hover {
+        background: #1e3a8a;
+        color: white;
+        transform: scale(1.05);
+    }
+
+    button:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+
+    .slide-number {
+        position: fixed;
+        bottom: 30px;
+        left: 30px;
+        color: white;
+        font-size: 1.2em;
+        font-weight: bold;
+        background: rgba(255,255,255,0.2);
+        padding: 10px 20px;
+        border-radius: 25px;
+    }
+
+    strong {
+        color: #3b82f6;
+    }
+
+    .scenario {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 15px 0;
+        border-left: 4px solid #3b82f6;
+    }
+</style>
+</head>
+<body>
+    <div class="presentation">
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <h1>🤖 GenAI Agents & Core Concepts</h1>
+            <p class="subtitle">Week 5: Building Real-World AI Applications</p>
+            <div class="emoji">🚀</div>
+            <div class="highlight-box">
+                <h3 style="text-align: center; margin: 0;">Today's Focus</h3>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 25px;">
+                    <div style="text-align: center; padding: 15px;">
+                        <div style="font-size: 2.5em;">🧠</div>
+                        <div style="font-size: 1.1em; margin-top: 10px;"><strong>Agents & State Management</strong></div>
+                    </div>
+                    <div style="text-align: center; padding: 15px;">
+                        <div style="font-size: 2.5em;">🛠️</div>
+                        <div style="font-size: 1.1em; margin-top: 10px;"><strong>Function Calling</strong></div>
+                    </div>
+                    <div style="text-align: center; padding: 15px;">
+                        <div style="font-size: 2.5em;">⚖️</div>
+                        <div style="font-size: 1.1em; margin-top: 10px;"><strong>Chains vs Agents</strong></div>
+                    </div>
+                    <div style="text-align: center; padding: 15px;">
+                        <div style="font-size: 2.5em;">🚀</div>
+                        <div style="font-size: 1.1em; margin-top: 10px;"><strong>Advanced Frameworks</strong></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: What are Agents? -->
+        <div class="slide">
+            <h2>🤖 What are GenAI Agents?</h2>
+            
+            <div class="highlight-box">
+                <p style="font-size: 1.3em; text-align: center;">
+                    <strong>An AI system that can think, remember, and take actions autonomously</strong>
+                </p>
+            </div>
+
+            <div class="example-box">
+                <div class="icon-text">
+                    <span class="icon">💡</span>
+                    <div>
+                        <strong>Real-Life Example:</strong> Think of a personal assistant who:
+                        <ul style="margin-top: 10px;">
+                            <li>Remembers your previous conversations</li>
+                            <li>Makes decisions on what to do next</li>
+                            <li>Actually performs tasks (books meetings, searches web, sends emails)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="two-columns">
+                <div class="card">
+                    <div style="text-align: center; font-size: 2.5em; margin-bottom: 15px;">💬</div>
+                    <h3 style="font-size: 1.3em; text-align: center;">Simple Chatbot</h3>
+                    <ul>
+                        <li>One question → One answer</li>
+                        <li>No memory</li>
+                        <li>Can't do anything</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <div style="text-align: center; font-size: 2.5em; margin-bottom: 15px;">🤖</div>
+                    <h3 style="font-size: 1.3em; text-align: center;">AI Agent</h3>
+                    <ul>
+                        <li>Multi-step thinking</li>
+                        <li>Remembers context</li>
+                        <li>Takes actions</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Why Agents Matter -->
+        <div class="slide">
+            <h2>❓ Why Do We Need Agents?</h2>
+
+            <div class="scenario">
+                <div class="icon-text">
+                    <span class="icon">👤</span>
+                    <strong style="font-size: 1.2em;">User:</strong> "Book me a flight to Paris next week and find a hotel near the Eiffel Tower"
+                </div>
+            </div>
+
+            <div class="two-columns">
+                <div class="card">
+                    <h3 style="color: #dc3545;">❌ Simple Chatbot</h3>
+                    <p style="margin-top: 10px;">"I can't do that. Please visit booking.com"</p>
+                    <p style="margin-top: 15px; color: #666; font-size: 0.95em;">Can only talk, can't act</p>
+                </div>
+                <div class="card">
+                    <h3 style="color: #28a745;">✅ AI Agent</h3>
+                    <p style="margin-top: 10px;">"Let me help you!"</p>
+                    <ul style="margin-top: 15px; font-size: 0.95em;">
+                        <li>Searches flight APIs</li>
+                        <li>Compares prices</li>
+                        <li>Finds hotels near Eiffel Tower</li>
+                        <li>Presents best options</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="advantage-box">
+                <div class="icon-text">
+                    <span class="icon">✨</span>
+                    <div>
+                        <strong>Key Advantage:</strong> Agents can complete complex tasks autonomously, not just chat!
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: State Management Intro -->
+<div class="slide">
+    <div class="slide-header">
+        <i class="fas fa-brain"></i>
+        <h1>The Role of State in GenAI Agents</h1>
+    </div>
+
+    <div class="grid-2">
+        <div class="card bg-purple" style="padding: 40px; text-align: center;">
+            <i class="fas fa-microchip" style="font-size: 64px; color: #805ad5; margin-bottom: 20px;"></i>
+            <h2 style="color: #2d3748; margin-bottom: 15px;">LLMs are Stateless</h2>
+            <p style="font-size: 1.1em; color: #4a5568;">They forget everything after each call</p>
+        </div>
+
+        <div class="card bg-blue">
+            <h3 style="margin-bottom: 20px;"><i class="fas fa-check-circle"></i> Why State Management Matters</h3>
+            <div style="display: grid; gap: 15px;">
+                <div style="display: flex; gap: 15px; align-items: start;">
+                    <i class="fas fa-comments" style="font-size: 24px; color: #3182ce; margin-top: 5px;"></i>
+                    <div>
+                        <strong>Maintain conversation context</strong>
+                        <p style="margin-top: 5px; color: #4a5568; font-size: 0.95em;">Remember what was discussed previously</p>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 15px; align-items: start;">
+                    <i class="fas fa-tasks" style="font-size: 24px; color: #3182ce; margin-top: 5px;"></i>
+                    <div>
+                        <strong>Track progress in workflows</strong>
+                        <p style="margin-top: 5px; color: #4a5568; font-size: 0.95em;">Know which steps are completed</p>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 15px; align-items: start;">
+                    <i class="fas fa-user-circle" style="font-size: 24px; color: #3182ce; margin-top: 5px;"></i>
+                    <div>
+                        <strong>Remember facts & preferences</strong>
+                        <p style="margin-top: 5px; color: #4a5568; font-size: 0.95em;">Store user information across sessions</p>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 15px; align-items: start;">
+                    <i class="fas fa-project-diagram" style="font-size: 24px; color: #3182ce; margin-top: 5px;"></i>
+                    <div>
+                        <strong>Enable agent coordination</strong>
+                        <p style="margin-top: 5px; color: #4a5568; font-size: 0.95em;">Multiple agents working together</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="example-box" style="margin-top: 30px;">
+        <h3 style="margin-bottom: 15px;"><i class="fas fa-lightbulb"></i> Real-Life Example: Customer Support Agent</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 20px;">
+            <div>
+                <div style="background: #f7fafc; padding: 15px; border-radius: 8px; border-left: 4px solid #3182ce;">
+                    <p><strong>👤 User:</strong> "My order hasn't arrived"</p>
+                </div>
+            </div>
+            <div>
+                <p style="margin-bottom: 10px;"><strong>🧠 Agent needs to remember:</strong></p>
+                <ul style="margin-left: 20px;">
+                    <li>User's name and order ID</li>
+                    <li>Previous conversation history</li>
+                    <li>Current problem being solved</li>
+                    <li>Steps already tried</li>
+                </ul>
+            </div>
+        </div>
+        <div class="highlight-box" style="background: #fff5f5; border-left: 4px solid #e53e3e; margin-top: 20px; padding: 15px;">
+            <strong style="color: #c53030;">⚠️ Without State Management:</strong> Agent forgets everything after each message!
+        </div>
+    </div>
+</div>
+
+<!-- Slide 5: Types of State -->
+<div class="slide">
+    <div class="slide-header">
+        <i class="fas fa-layer-group"></i>
+        <h1>Types of State in GenAI Agents</h1>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 25px; margin-bottom: 30px;">
+        <div class="card bg-blue">
+            <div style="text-align: center; font-size: 3em; margin-bottom: 15px;">💬</div>
+            <h3 style="text-align: center; color: #2c5282;">Conversation</h3>
+            <p style="text-align: center; color: #4a5568; margin-bottom: 15px; font-style: italic;">Current conversation</p>
+            <div style="background: #edf2f7; padding: 15px; border-radius: 8px;">
+                <p style="font-size: 0.9em; color: #2d3748;"><strong>Example:</strong></p>
+                <p style="font-size: 0.9em; color: #4a5568; margin-top: 8px;">User: "What's the weather?"<br>Agent: "In which city?"<br>User: "Mumbai"</p>
+            </div>
+            <div style="margin-top: 15px; padding: 10px; background: #bee3f8; border-radius: 6px; text-align: center;">
+                <strong style="color: #2c5282; font-size: 0.9em;">💾 Storage: In-memory / cache</strong>
+            </div>
+        </div>
+
+        <div class="card bg-purple">
+            <div style="text-align: center; font-size: 3em; margin-bottom: 15px;">⚡</div>
+            <h3 style="text-align: center; color: #44337a;">Short-term</h3>
+            <p style="text-align: center; color: #4a5568; margin-bottom: 15px; font-style: italic;">Task level summary</p>
+            <div style="background: #faf5ff; padding: 15px; border-radius: 8px;">
+                <p style="font-size: 0.9em; color: #2d3748;"><strong>Example:</strong></p>
+                <p style="font-size: 0.9em; color: #4a5568; margin-top: 8px;">Shopping cart items, form data being filled, current booking workflow state</p>
+            </div>
+            <div style="margin-top: 15px; padding: 10px; background: #e9d8fd; border-radius: 6px; text-align: center;">
+                <strong style="color: #44337a; font-size: 0.9em;">💾 Storage: Redis / JSON store</strong>
+            </div>
+        </div>
+
+        <div class="card bg-green">
+            <div style="text-align: center; font-size: 3em; margin-bottom: 15px;">🗄️</div>
+            <h3 style="text-align: center; color: #22543d;">Long-term</h3>
+            <p style="text-align: center; color: #4a5568; margin-bottom: 15px; font-style: italic;">User facts, documents</p>
+            <div style="background: #f0fff4; padding: 15px; border-radius: 8px;">
+                <p style="font-size: 0.9em; color: #2d3748;"><strong>Example:</strong></p>
+                <p style="font-size: 0.9em; color: #4a5568; margin-top: 8px;">User prefers vegetarian restaurants, usually books economy flights, past order history</p>
+            </div>
+            <div style="margin-top: 15px; padding: 10px; background: #c6f6d5; border-radius: 6px; text-align: center;">
+                <strong style="color: #22543d; font-size: 0.9em;">💾 Storage: Vector DB (Pinecone)</strong>
+            </div>
+        </div>
+
+        <div class="card bg-orange">
+            <div style="text-align: center; font-size: 3em; margin-bottom: 15px;">🎯</div>
+            <h3 style="text-align: center; color: #7c2d12;">Control</h3>
+            <p style="text-align: center; color: #4a5568; margin-bottom: 15px; font-style: italic;">Agent goals, actions</p>
+            <div style="background: #fffaf0; padding: 15px; border-radius: 8px;">
+                <p style="font-size: 0.9em; color: #2d3748;"><strong>Example:</strong></p>
+                <p style="font-size: 0.9em; color: #4a5568; margin-top: 8px;">Goal: Book flight<br>Steps completed: 2/5<br>Next: Check hotel availability</p>
+            </div>
+            <div style="margin-top: 15px; padding: 10px; background: #fed7aa; border-radius: 6px; text-align: center;">
+                <strong style="color: #7c2d12; font-size: 0.9em;">💾 Storage: State machine / DB</strong>
+            </div>
+        </div>
+    </div>
+</div>
+
+        <!-- Slide 6: State Management Use Cases -->
+<div class="slide">
+    <div class="slide-header">
+        <i class="fas fa-bullseye"></i>
+        <h1>When to Use State Management?</h1>
+    </div>
+
+    <div class="grid-2" style="margin-bottom: 30px;">
+        <div class="card bg-blue">
+            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+                <i class="fas fa-shopping-cart" style="font-size: 40px; color: #3182ce;"></i>
+                <h3 style="margin: 0; color: #2c5282;">E-commerce Shopping Assistant</h3>
+            </div>
+            
+            <div style="background: #edf2f7; padding: 15px; border-radius: 8px; margin-bottom: 12px;">
+                <strong style="color: #2c5282;">💬 Conversation State:</strong>
+                <p style="margin-top: 8px; color: #4a5568; font-size: 0.95em;">"Show me laptops" → "Under 50k" → "With 16GB RAM"</p>
+            </div>
+
+            <div style="background: #edf2f7; padding: 15px; border-radius: 8px; margin-bottom: 12px;">
+                <strong style="color: #2c5282;">⚡ Short-term State:</strong>
+                <p style="margin-top: 8px; color: #4a5568; font-size: 0.95em;">Items in cart, filters applied, current search results</p>
+            </div>
+
+            <div style="background: #edf2f7; padding: 15px; border-radius: 8px;">
+                <strong style="color: #2c5282;">🗄️ Long-term State:</strong>
+                <p style="margin-top: 8px; color: #4a5568; font-size: 0.95em;">Preferred brands, past purchases, wishlists, delivery addresses</p>
+            </div>
+        </div>
+
+        <div class="card bg-green">
+            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+                <i class="fas fa-heartbeat" style="font-size: 40px; color: #38a169;"></i>
+                <h3 style="margin: 0; color: #22543d;">Healthcare Assistant</h3>
+            </div>
+            
+            <div style="background: #f0fff4; padding: 15px; border-radius: 8px; margin-bottom: 12px;">
+                <strong style="color: #22543d;">💬 Conversation State:</strong>
+                <p style="margin-top: 8px; color: #4a5568; font-size: 0.95em;">Current symptom discussion flow, clarifying questions</p>
+            </div>
+
+            <div style="background: #f0fff4; padding: 15px; border-radius: 8px; margin-bottom: 12px;">
+                <strong style="color: #22543d;">⚡ Short-term State:</strong>
+                <p style="margin-top: 8px; color: #4a5568; font-size: 0.95em;">Current symptoms being diagnosed, appointment booking progress</p>
+            </div>
+
+            <div style="background: #f0fff4; padding: 15px; border-radius: 8px;">
+                <strong style="color: #22543d;">🗄️ Long-term State:</strong>
+                <p style="margin-top: 8px; color: #4a5568; font-size: 0.95em;">Medical history, allergies, current medications, test results</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-box">
+        <h3 style="margin-bottom: 20px;"><i class="fas fa-star"></i> Key Benefits of State Management</h3>
+        <div class="grid-4">
+            <div style="text-align: center;">
+                <i class="fas fa-redo" style="font-size: 32px; color: #3182ce; margin-bottom: 10px;"></i>
+                <p style="font-weight: 600; color: #2d3748;">No Repetition</p>
+                <p style="font-size: 0.9em; color: #4a5568; margin-top: 5px;">Users don't repeat information</p>
+            </div>
+            <div style="text-align: center;">
+                <i class="fas fa-brain" style="font-size: 32px; color: #805ad5; margin-bottom: 10px;"></i>
+                <p style="font-weight: 600; color: #2d3748;">Context-Aware</p>
+                <p style="font-size: 0.9em; color: #4a5568; margin-top: 5px;">Intelligent, contextual responses</p>
+            </div>
+            <div style="text-align: center;">
+                <i class="fas fa-user-check" style="font-size: 32px; color: #38a169; margin-bottom: 10px;"></i>
+                <p style="font-weight: 600; color: #2d3748;">Personalized</p>
+                <p style="font-size: 0.9em; color: #4a5568; margin-top: 5px;">Tailored user experience</p>
+            </div>
+            <div style="text-align: center;">
+                <i class="fas fa-tasks" style="font-size: 32px; color: #dd6b20; margin-bottom: 10px;"></i>
+                <p style="font-weight: 600; color: #2d3748;">Multi-Step Tasks</p>
+                <p style="font-size: 0.9em; color: #4a5568; margin-top: 5px;">Handle complex workflows</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+        <!-- Slide 7: Function Calling Intro -->
+        <div class="slide">
+            <h2>🛠️ Function & Tool Calling</h2>
+
+            <div class="highlight-box">
+                <p style="font-size: 1.3em; text-align: center;">
+                    <strong>Give your AI superpowers to interact with the real world!</strong>
+                </p>
+            </div>
+
+            <div class="example-box">
+                <div class="icon-text">
+                    <span class="icon">💡</span>
+                    <div>
+                        <strong>Real-Life Analogy:</strong> Employee with access to company tools
+                        <div style="margin-top: 15px;">
+                            <p><strong>Without tools:</strong> "I can tell you how to check inventory"</p>
+                            <p style="margin-top: 10px;"><strong>With tools:</strong> "Let me check the inventory system for you... We have 45 units in stock!"</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="two-columns" style="margin-top: 25px;">
+                <div class="card">
+                    <h3 style="color: #dc3545; text-align: center;">❌ Without Function Calling</h3>
+                    <p style="margin-top: 15px; text-align: center;">AI can only talk about things</p>
+                    <div style="text-align: center; margin-top: 15px; font-size: 2em;">💬</div>
+                </div>
+                <div class="card">
+                    <h3 style="color: #28a745; text-align: center;">✅ With Function Calling</h3>
+                    <p style="margin-top: 15px; text-align: center;">AI can DO things</p>
+                    <div style="text-align: center; margin-top: 15px; font-size: 2em;">💬 + 🔧 + 🌐</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: How Function Calling Works -->
+        <div class="slide">
+            <h2>⚙️ How Does It Work?</h2>
+
+            <div class="flow" style="flex-direction: column; align-items: stretch;">
+                <div class="flow-item" style="text-align: center;">1️⃣ Define Available Tools</div>
+                <div style="text-align: center; font-size: 2em; color: #667eea;">↓</div>
+                <div class="flow-item" style="text-align: center;">2️⃣ AI Decides Which Tool to Use</div>
+                <div style="text-align: center; font-size: 2em; color: #667eea;">↓</div>
+                <div class="flow-item" style="text-align: center;">3️⃣ Execute the Tool</div>
+                <div style="text-align: center; font-size: 2em; color: #667eea;">↓</div>
+                <div class="flow-item" style="text-align: center;">4️⃣ AI Uses Result to Respond</div>
+            </div>
+
+            <div class="example-box" style="margin-top: 25px;">
+                <strong>Example: Weather Assistant</strong>
+                <div style="margin-top: 15px;">
+                    <p><strong>User:</strong> "What's the weather in Mumbai?"</p>
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 10px;">
+                        <p><strong>Step 1:</strong> AI has <code>get_weather(city)</code> tool available</p>
+                        <p style="margin-top: 8px;"><strong>Step 2:</strong> AI decides: "I need to call get_weather('Mumbai')"</p>
+                        <p style="margin-top: 8px;"><strong>Step 3:</strong> System executes → Returns: 28°C, Sunny</p>
+                        <p style="margin-top: 8px;"><strong>Step 4:</strong> AI responds: "It's 28°C and sunny in Mumbai!"</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Function Calling Use Cases -->
+        <div class="slide">
+            <h2>🎯 Real Use Cases</h2>
+
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                <div class="use-case-box">
+                    <div class="icon-text">
+                        <span class="icon">🔍</span>
+                        <div>
+                            <strong>Research Assistant</strong>
+                            <p style="margin-top: 10px; font-size: 0.95em;">
+                                <strong>Tools:</strong> web_search, read_pdf, summarize<br>
+                                <strong>Use:</strong> "Research AI trends in 2024"
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="use-case-box">
+                    <div class="icon-text">
+                        <span class="icon">📧</span>
+                        <div>
+                            <strong>Email Assistant</strong>
+                            <p style="margin-top: 10px; font-size: 0.95em;">
+                                <strong>Tools:</strong> send_email, read_email, schedule_meeting<br>
+                                <strong>Use:</strong> "Send meeting invite to team"
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="use-case-box">
+                    <div class="icon-text">
+                        <span class="icon">💰</span>
+                        <div>
+                            <strong>Banking Bot</strong>
+                            <p style="margin-top: 10px; font-size: 0.95em;">
+                                <strong>Tools:</strong> check_balance, transfer_money, get_statement<br>
+                                <strong>Use:</strong> "What's my account balance?"
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="use-case-box">
+                    <div class="icon-text">
+                        <span class="icon">📊</span>
+                        <div>
+                            <strong>Data Analyst</strong>
+                            <p style="margin-top: 10px; font-size: 0.95em;">
+                                <strong>Tools:</strong> query_database, create_chart, export_report<br>
+                                <strong>Use:</strong> "Show sales trends last quarter"
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="advantage-box" style="margin-top: 20px;">
+                <strong>Advantages:</strong>
+                <ul style="margin-top: 10px;">
+                    <li>Get real-time information (weather, stock prices)</li>
+                    <li>Perform actual actions (book tickets, send emails)</li>
+                    <li>Access external systems (databases, APIs)</li>
+                    <li>Automate complex workflows</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 10: Chains vs Agents Intro -->
+        <div class="slide">
+            <h2>⚖️ Chains vs Agents</h2>
+
+            <div class="highlight-box">
+                <p style="font-size: 1.3em; text-align: center;">
+                    <strong>Two different approaches to solve problems with AI</strong>
+                </p>
+            </div>
+
+            <div class="example-box">
+                <div class="icon-text">
+                    <span class="icon">💡</span>
+                    <div>
+                        <strong>Real-Life Analogy:</strong>
+                        <div style="margin-top: 15px;">
+                            <p><strong>Chain = Recipe:</strong> Follow steps in order → Guaranteed result</p>
+                            <p style="margin-top: 10px;"><strong>Agent = Chef:</strong> Decides what to cook based on ingredients → Flexible result</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <div style="font-size: 3em; margin-bottom: 20px;">⛓️ 🆚 🤖</div>
+                <p style="font-size: 1.3em; color: #666;">Let's understand the difference...</p>
+            </div>
+        </div>
+
+        <!-- Slide 11: What are Chains? -->
+        <div class="slide">
+            <h2>⛓️ Chains: Fixed Workflows</h2>
+
+            <div class="highlight-box">
+                <p style="font-size: 1.2em;">
+                    <strong>Chain = Predefined sequence of steps</strong> (Step 1 → Step 2 → Step 3)
+                </p>
+            </div>
+
+            <div class="example-box">
+                <strong>Example: Document Summarizer Chain</strong>
+                <div class="flow" style="margin-top: 15px;">
+                    <div class="flow-item">Read Document</div>
+                    <span class="arrow">→</span>
+                    <div class="flow-item">Extract Key Points</div>
+                    <span class="arrow">→</span>
+                    <div class="flow-item">Generate Summary</div>
+                    <span class="arrow">→</span>
+                    <div class="flow-item">Format Output</div>
+                </div>
+                <p style="margin-top: 15px; color: #666;">Same steps every time, predictable result!</p>
+            </div>
+
+            <div class="two-columns" style="margin-top: 20px;">
+                <div class="advantage-box">
+                    <strong>✅ Advantages</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Fast & predictable</li>
+                        <li>Easy to debug</li>
+                        <li>Lower cost</li>
+                        <li>Reliable output</li>
+                    </ul>
+                </div>
+                <div class="card" style="background: #ffe6e6;">
+                    <strong>❌ Limitations</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Can't adapt to changes</li>
+                        <li>Fixed logic only</li>
+                        <li>No decision making</li>
+                        <li>Limited flexibility</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: What are Agents? -->
+        <div class="slide">
+            <h2>🤖 Agents: Dynamic Decision Makers</h2>
+
+            <div class="highlight-box">
+                <p style="font-size: 1.2em;">
+                    <strong>Agent = Thinks and decides what to do next</strong> (Adaptive workflow)
+                </p>
+            </div>
+
+            <div class="example-box">
+                <strong>Example: Research Agent</strong>
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 10px;">
+                    <p><strong>Task:</strong> "Research best laptops for gaming"</p>
+                    <p style="margin-top: 10px;"><strong>Agent decides:</strong></p>
+                    <ul style="margin-top: 8px; font-size: 0.95em;">
+                        <li>Step 1: Search web for gaming laptops</li>
+                        <li>Step 2: Found 10 results → Decide to filter by budget</li>
+                        <li>Step 3: Compare specs → Decide to check reviews</li>
+                        <li>Step 4: Analyze reviews → Generate recommendation</li>
+                    </ul>
+                    <p style="margin-top: 10px; color: #666;">Agent decides each step based on what it learns!</p>
+                </div>
+            </div>
+
+            <div class="two-columns" style="margin-top: 20px;">
+                <div class="advantage-box">
+                    <strong>✅ Advantages</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Adaptive & flexible</li>
+                        <li>Handles complexity</li>
+                        <li>Smart decisions</li>
+                        <li>Explores solutions</li>
+                    </ul>
+                </div>
+                <div class="card" style="background: #fff3cd;">
+                    <strong>⚠️ Trade-offs</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Slower execution</li>
+                        <li>Higher costs</li>
+                        <li>Less predictable</li>
+                        <li>Harder to debug</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13: Side-by-Side Comparison -->
+        <div class="slide">
+            <h2>⚖️ Chains vs Agents: Comparison</h2>
+
+            <div class="comparison-grid">
+                <div class="comparison-item">
+                    <div style="font-size: 3em; margin-bottom: 15px;">⛓️</div>
+                    <div class="comparison-title">CHAINS</div>
+                    <div style="text-align: left; margin-top: 20px;">
+                        <p style="margin: 10px 0;"><strong>Workflow:</strong> Fixed sequence</p>
+                        <p style="margin: 10px 0;"><strong>Speed:</strong> Fast ⚡</p>
+                        <p style="margin: 10px 0;"><strong>Cost:</strong> Low 💰</p>
+                        <p style="margin: 10px 0;"><strong>Flexibility:</strong> Limited 📏</p>
+                        <p style="margin: 10px 0;"><strong>Use When:</strong> Process is clear</p>
+                    </div>
+                </div>
+
+                <div class="comparison-item">
+                    <div style="font-size: 3em; margin-bottom: 15px;">🤖</div>
+                    <div class="comparison-title">AGENTS</div>
+                    <div style="text-align: left; margin-top: 20px;">
+                        <p style="margin: 10px 0;"><strong>Workflow:</strong> Dynamic decisions</p>
+                        <p style="margin: 10px 0;"><strong>Speed:</strong> Slower 🐢</p>
+                        <p style="margin: 10px 0;"><strong>Cost:</strong> Higher 💰💰</p>
+                        <p style="margin: 10px 0;"><strong>Flexibility:</strong> High 🎯</p>
+                        <p style="margin: 10px 0;"><strong>Use When:</strong> Complex & uncertain</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="highlight-box" style="margin-top: 25px;">
+                <p style="font-size: 1.2em; text-align: center;">
+                    <strong>💡 Pro Tip:</strong> Start with Chains for simple tasks, use Agents when you need intelligence!
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 14: When to Use What -->
+        <div class="slide">
+            <h2>🎯 When to Use Chains vs Agents?</h2>
+
+            <div class="use-case-box">
+                <h3 style="color: #667eea; margin-bottom: 15px;">⛓️ Use CHAINS When:</h3>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+                    <div class="scenario">
+                        <strong>📄 Document Processing</strong>
+                        <p style="margin-top: 5px; font-size: 0.95em;">Extract → Analyze → Summarize (always same steps)</p>
+                    </div>
+                    <div class="scenario">
+                        <strong>📧 Email Classification</strong>
+                        <p style="margin-top: 5px; font-size: 0.95em;">Read → Classify → Route (predictable flow)</p>
+                    </div>
+                    <div class="scenario">
+                        <strong>🎨 Content Generation</strong>
+                        <p style="margin-top: 5px; font-size: 0.95em;">Get topic → Generate → Format (fixed template)</p>
+                    </div>
+                    <div class="scenario">
+                        <strong>📊 Report Creation</strong>
+                        <p style="margin-top: 5px; font-size: 0.95em;">Fetch data → Analyze → Format (standard process)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="use-case-box">
+                <h3 style="color: #764ba2; margin-bottom: 15px;">🤖 Use AGENTS When:</h3>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+                    <div class="scenario">
+                        <strong>🔍 Research Tasks</strong>
+                        <p style="margin-top: 5px; font-size: 0.95em;">Unknown paths, need to explore & decide</p>
+                    </div>
+                    <div class="scenario">
+                        <strong>🛠️ Troubleshooting</strong>
+                        <p style="margin-top: 5px; font-size: 0.95em;">Diagnose issue, try solutions adaptively</p>
+                    </div>
+                    <div class="scenario">
+                        <strong>🎯 Complex Planning</strong>
+                        <p style="margin-top: 5px; font-size: 0.95em;">Multi-step tasks with dependencies</p>
+                    </div>
+                    <div class="scenario">
+                        <strong>🤝 Customer Support</strong>
+                        <p style="margin-top: 5px; font-size: 0.95em;">Handle varied queries, use different tools</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15: Real-World Comparison Example -->
+        <div class="slide">
+            <h2>🌍 Real Example: "Plan My Trip"</h2>
+
+            <div class="two-columns">
+                <div class="card" style="background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);">
+                    <h3 style="text-align: center; margin-bottom: 15px;">⛓️ Chain Approach</h3>
+                    <div style="background: white; padding: 15px; border-radius: 8px; margin-top: 10px;">
+                        <p style="font-weight: bold; margin-bottom: 10px;">Fixed Steps:</p>
+                        <ol style="list-style: decimal; padding-left: 20px;">
+                            <li style="padding-left: 10px;">Get destination & dates</li>
+                            <li style="padding-left: 10px; margin-top: 8px;">Search flights</li>
+                            <li style="padding-left: 10px; margin-top: 8px;">Search hotels</li>
+                            <li style="padding-left: 10px; margin-top: 8px;">Show results</li>
+                        </ol>
+                        <p style="margin-top: 15px; color: #666; font-size: 0.95em;">
+                            ✅ Fast, predictable<br>
+                            ❌ Can't adapt to budget changes or preferences
+                        </p>
+                    </div>
+                </div>
+
+                <div class="card" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);">
+                    <h3 style="text-align: center; margin-bottom: 15px;">🤖 Agent Approach</h3>
+                    <div style="background: white; padding: 15px; border-radius: 8px; margin-top: 10px;">
+                        <p style="font-weight: bold; margin-bottom: 10px;">Adaptive Process:</p>
+                        <ol style="list-style: decimal; padding-left: 20px;">
+                            <li style="padding-left: 10px;">Understand requirements</li>
+                            <li style="padding-left: 10px; margin-top: 8px;">Check budget → adjust search</li>
+                            <li style="padding-left: 10px; margin-top: 8px;">Find flights → too expensive?</li>
+                            <li style="padding-left: 10px; margin-top: 8px;">Try alternate dates</li>
+                            <li style="padding-left: 10px; margin-top: 8px;">Suggest visa requirements</li>
+                            <li style="padding-left: 10px; margin-top: 8px;">Present optimized plan</li>
+                        </ol>
+                        <p style="margin-top: 15px; color: #666; font-size: 0.95em;">
+                            ✅ Smart, personalized<br>
+                            ❌ Slower, higher cost
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 16: Key Takeaways -->
+        <div class="slide">
+            <h2>🎯 Key Takeaways</h2>
+
+            <div style="display: grid; grid-template-columns: 1fr; gap: 20px; margin-top: 20px;">
+                <div class="highlight-box">
+                    <div class="icon-text">
+                        <span class="icon" style="font-size: 2.5em;">🧠</span>
+                        <div>
+                            <h3 style="margin: 0;">Agents & State Management</h3>
+                            <ul style="margin-top: 10px;">
+                                <li>Agents remember context and take actions</li>
+                                <li>State = Memory that makes agents smart</li>
+                                <li>Essential for multi-step conversations</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <div class="icon-text">
+                        <span class="icon" style="font-size: 2.5em;">🛠️</span>
+                        <div>
+                            <h3 style="margin: 0;">Function Calling</h3>
+                            <ul style="margin-top: 10px;">
+                                <li>Connects AI to real-world systems</li>
+                                <li>Enables actual actions, not just talk</li>
+                                <li>Critical for practical applications</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <div class="icon-text">
+                        <span class="icon" style="font-size: 2.5em;">⚖️</span>
+                        <div>
+                            <h3 style="margin: 0;">Chains vs Agents</h3>
+                            <ul style="margin-top: 10px;">
+                                <li>Chains: Fast, predictable, fixed workflows</li>
+                                <li>Agents: Flexible, intelligent, adaptive</li>
+                                <li>Choose based on complexity & requirements</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 17: Decision Framework -->
+    <div class="slide">
+        <h2>🤔 Decision Framework</h2>
+
+        <div style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); color: white; padding: 30px; border-radius: 15px; margin: 20px 0;">
+            <h3 style="color: white; text-align: center; margin-bottom: 25px;">Ask Yourself These Questions:</h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div style="background: rgba(255,255,255,0.2); padding: 20px; border-radius: 10px;">
+                    <p style="font-size: 1.3em; margin-bottom: 15px;">❓ Is the workflow predictable?</p>
+                    <p style="font-size: 0.95em;">Yes → Chain<br>No → Agent</p>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.2); padding: 20px; border-radius: 10px;">
+                    <p style="font-size: 1.3em; margin-bottom: 15px;">❓ Need to make decisions?</p>
+                    <p style="font-size: 0.95em;">No → Chain<br>Yes → Agent</p>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.2); padding: 20px; border-radius: 10px;">
+                    <p style="font-size: 1.3em; margin-bottom: 15px;">❓ Is speed critical?</p>
+                    <p style="font-size: 0.95em;">Yes → Chain<br>No → Agent</p>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.2); padding: 20px; border-radius: 10px;">
+                    <p style="font-size: 1.3em; margin-bottom: 15px;">❓ Complex problem-solving?</p>
+                    <p style="font-size: 0.95em;">No → Chain<br>Yes → Agent</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="advantage-box" style="margin-top: 25px;">
+            <p style="font-size: 1.2em; text-align: center;">
+                <strong>💡 Best Practice:</strong> Start simple with chains, upgrade to agents when needed!
+            </p>
+        </div>
+    </div>
+
+    <!-- Slide 18: Advanced Frameworks -->
+    <div class="slide">
+        <h2>🚀 Advanced Agent Frameworks</h2>
+
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 20px;">
+            <div class="card">
+                <h3 style="font-size: 1.3em; margin-bottom: 10px;">🦜 LangChain</h3>
+                <p style="font-size: 0.95em; line-height: 1.6;">Open-source framework for developing LLM applications with tools to connect models to external data sources and components.</p>
+            </div>
+
+            <div class="card">
+                <h3 style="font-size: 1.3em; margin-bottom: 10px;">📊 LangGraph</h3>
+                <p style="font-size: 0.95em; line-height: 1.6;">Built on LangChain, uses graph-based structure for stateful, multi-agent applications with control over flow and logic.</p>
+            </div>
+
+            <div class="card">
+                <h3 style="font-size: 1.3em; margin-bottom: 10px;">🔷 Google ADK</h3>
+                <p style="font-size: 0.95em; line-height: 1.6;">Open-source for building, evaluating, and deploying AI agents with modularity, scalability, and Google ecosystem integration.</p>
+            </div>
+
+            <div class="card">
+                <h3 style="font-size: 1.3em; margin-bottom: 10px;">🤏 SmolAgent</h3>
+                <p style="font-size: 0.95em; line-height: 1.6;">Lightweight, code-centric framework from Hugging Face that lets agents write and execute their own Python code.</p>
+            </div>
+
+            <div class="card">
+                <h3 style="font-size: 1.3em; margin-bottom: 10px;">✅ Pydantic</h3>
+                <p style="font-size: 0.95em; line-height: 1.6;">Python library for data validation and settings management using type hints to enforce schemas.</p>
+            </div>
+
+            <div class="card">
+                <h3 style="font-size: 1.3em; margin-bottom: 10px;">👥 Crew AI</h3>
+                <p style="font-size: 0.95em; line-height: 1.6;">Framework for organizing autonomous AI agents into collaborative teams with specialized roles for complex tasks.</p>
+            </div>
+
+            <div class="card">
+                <h3 style="font-size: 1.3em; margin-bottom: 10px;">🔄 AutoGen</h3>
+                <p style="font-size: 0.95em; line-height: 1.6;">Microsoft's multi-agent conversational framework where agents chat, collaborate, and use tools autonomously.</p>
+            </div>
+
+            <div class="card">
+                <h3 style="font-size: 1.3em; margin-bottom: 10px;">🐝 OpenAI's Agent SDK (Formally Swarm)</h3>
+                <p style="font-size: 0.95em; line-height: 1.6;">OpenAI's Agent SDK focusing on minimal primitives like agents, handoffs, and guardrails for collaborative systems.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 19: SDLC Tools -->
+    <div class="slide">
+        <h2>🛠️ SDLC Tools</h2>
+
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 20px;">
+            <div class="use-case-box">
+                <h3 style="font-size: 1.3em; margin-bottom: 10px;">💻 GitHub Copilot</h3>
+                <p style="font-size: 0.95em;">AI pair programmer that offers code suggestions in real-time.</p>
+            </div>
+
+            <div class="use-case-box">
+                <h3 style="font-size: 1.3em; margin-bottom: 10px;">🎯 Cursor</h3>
+                <p style="font-size: 0.95em;">AI-focused code editor based on VS Code for code generation, debugging, and refactoring.</p>
+            </div>
+
+            <div class="use-case-box">
+                <h3 style="font-size: 1.3em; margin-bottom: 10px;">🤖 Claude Code</h3>
+                <p style="font-size: 0.95em;">Command-line tool using AI to help developers build, debug, and understand code through natural language.</p>
+            </div>
+
+            <div class="use-case-box">
+                <h3 style="font-size: 1.3em; margin-bottom: 10px;">📝 Codex</h3>
+                <p style="font-size: 0.95em;">AI agent that translates natural language into code and performs software development tasks.</p>
+            </div>
+
+            <div class="use-case-box">
+                <h3 style="font-size: 1.3em; margin-bottom: 10px;">💎 Gemini CLI</h3>
+                <p style="font-size: 0.95em;">Open-source, terminal-based AI agent using Google's Gemini models for coding and task management.</p>
+            </div>
+
+            <div class="use-case-box">
+                <h3 style="font-size: 1.3em; margin-bottom: 10px;">🌊 Windsurf</h3>
+                <p style="font-size: 0.95em;">AI-driven IDE that allows multi-file edits and generates project frameworks using natural language.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 20: Popular Platforms -->
+    <div class="slide">
+        <h2>💬 Popular GenAI Chat Platforms</h2>
+
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 20px;">
+            <div class="card">
+                <h3 style="font-size: 1.2em; margin-bottom: 8px;">🤖 ChatGPT</h3>
+                <p style="font-size: 0.9em;"><a href="https://chatgpt.com/" target="_blank" style="color: #1e3a8a;">chatgpt.com</a></p>
+            </div>
+
+            <div class="card">
+                <h3 style="font-size: 1.2em; margin-bottom: 8px;">🧠 DeepSeek</h3>
+                <p style="font-size: 0.9em;"><a href="https://chat.deepseek.com/" target="_blank" style="color: #1e3a8a;">chat.deepseek.com</a></p>
+            </div>
+
+            <div class="card">
+                <h3 style="font-size: 1.2em; margin-bottom: 8px;">💎 Gemini (Google)</h3>
+                <p style="font-size: 0.9em;"><a href="https://gemini.google.com/app" target="_blank" style="color: #1e3a8a;">gemini.google.com/app</a></p>
+            </div>
+
+            <div class="card">
+                <h3 style="font-size: 1.2em; margin-bottom: 8px;">🌟 Mistral Chat</h3>
+                <p style="font-size: 0.9em;"><a href="https://chat.mistral.ai/" target="_blank" style="color: #1e3a8a;">chat.mistral.ai</a></p>
+            </div>
+
+            <div class="card">
+                <h3 style="font-size: 1.2em; margin-bottom: 8px;">❌ Grok (X/Twitter)</h3>
+                <p style="font-size: 0.9em;"><a href="https://x.com/i/grok" target="_blank" style="color: #1e3a8a;">x.com/i/grok</a></p>
+            </div>
+
+            <div class="card">
+                <h3 style="font-size: 1.2em; margin-bottom: 8px;">🤖 Claude (Anthropic)</h3>
+                <p style="font-size: 0.9em;"><a href="https://claude.ai/new" target="_blank" style="color: #1e3a8a;">claude.ai/new</a></p>
+            </div>
+
+            <div class="card">
+                <h3 style="font-size: 1.2em; margin-bottom: 8px;">🇨🇳 Zhipu AI (ChatGLM)</h3>
+                <p style="font-size: 0.9em;"><a href="https://chat.z.ai/" target="_blank" style="color: #1e3a8a;">chat.z.ai</a></p>
+            </div>
+
+            <div class="card">
+                <h3 style="font-size: 1.2em; margin-bottom: 8px;">🌙 Kimi AI</h3>
+                <p style="font-size: 0.9em;"><a href="https://www.kimi.com/" target="_blank" style="color: #1e3a8a;">kimi.com</a></p>
+            </div>
+        </div>
+
+        <div class="highlight-box" style="margin-top: 25px;">
+            <p style="font-size: 1.1em; text-align: center;">
+                <strong>💡 Tip:</strong> Explore different platforms to understand their unique capabilities and strengths!
+            </p>
+        </div>
+    </div>
+
+    <!-- Slide 21: Final -->
+    <div class="slide">
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+            <div class="emoji">🎉</div>
+            <h1 style="margin-bottom: 20px;">Ready to Build AI Agents!</h1>
+            
+            <div class="highlight-box" style="width: 80%; text-align: center; margin-top: 30px;">
+                <h3 style="margin-bottom: 20px;">Remember:</h3>
+                <div style="font-size: 1.3em; line-height: 2;">
+                    <p>🧠 Agents = Intelligence + Memory + Actions</p>
+                    <p>🛠️ Functions = Bridge to real world</p>
+                    <p>⚖️ Choose wisely: Chains or Agents</p>
+                    <p>🚀 Use frameworks to accelerate development</p>
+                </div>
+            </div>
+
+            <div style="margin-top: 50px; display: flex; gap: 30px; align-items: center;">
+                <div style="text-align: center;">
+                    <div style="font-size: 3em;">💬</div>
+                    <p style="margin-top: 10px; font-size: 1.2em;">Questions?</p>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 3em;">🚀</div>
+                    <p style="margin-top: 10px; font-size: 1.2em;">Start Building!</p>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 3em;">🤝</div>
+                    <p style="margin-top: 10px; font-size: 1.2em;">Share & Learn!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="slide-number">
+    <span id="current-slide">1</span> / <span id="total-slides">21</span>
+</div>
+
+<div class="controls">
+    <button id="prev-btn" onclick="prevSlide()">← Previous</button>
+    <button id="next-btn" onclick="nextSlide()">Next →</button>
+</div>
+
+<script>
+
+    
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+
+    document.getElementById('total-slides').textContent = totalSlides;
+
+    function showSlide(n) {
+        slides.forEach(slide => slide.classList.remove('active'));
+        slides[n].classList.add('active');
+        document.getElementById('current-slide').textContent = n + 1;
+        
+        prevBtn.disabled = n === 0;
+        nextBtn.disabled = n === totalSlides - 1;
+    }
+
+    function nextSlide() {
+        if (currentSlide < totalSlides - 1) {
+            currentSlide++;
+            showSlide(currentSlide);
+        }
+    }
+
+    function prevSlide() {
+        if (currentSlide > 0) {
+            currentSlide--;
+            showSlide(currentSlide);
+        }
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight') nextSlide();
+        if (e.key === 'ArrowLeft') prevSlide();
+    });
+
+    showSlide(0);
+</script>
+</body>
+</html>
