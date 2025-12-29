@@ -15,7 +15,7 @@ This is a curated space where I write and publish blog posts related to the **te
 
 All blogs are hosted via **GitHub Pages** and can be accessed at:
 
-👉 [https://<your-username>.github.io/]([https://<your-username>.github.io](https://bhaiyahns45.github.io/My-Blogs/))
+👉 https://bhaiyahns45.github.io/My-Blogs/
 
 ## ✍️ Why This Blog?
 
